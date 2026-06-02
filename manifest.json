@@ -1,0 +1,18 @@
+{
+  "name": "Lift Log",
+  "short_name": "Lift",
+  "description": "Workout plans, rest timers, and lifting logs.",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0b0c0d",
+  "theme_color": "#ff7a45",
+  "icons": [
+    {
+      "src": "./icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}
