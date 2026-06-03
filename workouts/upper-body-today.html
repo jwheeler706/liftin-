@@ -3,24 +3,24 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-<title>Chest &amp; Tri</title>
+<title>Upper Body Today</title>
 <meta name="theme-color" content="#ff7a45">
-<link rel="manifest" href="./manifest.json">
-<link rel="icon" href="./icon.svg" type="image/svg+xml">
+<link rel="manifest" href="../manifest.json">
+<link rel="icon" href="../assets/icons/icon.svg" type="image/svg+xml">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;600;700;800&family=Roboto+Mono:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="./workout-app.css">
+<link rel="stylesheet" href="../assets/css/workout-app.css">
 </head>
 <body>
-<div class="back-bar"><a href="./index.html" aria-label="Back to Lift">&#8249;</a></div>
+<div class="back-bar"><a href="../index.html" aria-label="Back to Lift">&#8249;</a></div>
 <div class="workout-clock" aria-live="polite">
   <span>Workout</span>
   <strong id="workoutElapsed">00:00</strong>
 </div>
 
 <header class="hero">
-  <h1>Chest <span>&amp; Tri</span></h1>
+  <h1>Upper <span>Body</span></h1>
   <div class="meta">
-    <span>50-60 min</span>
+    <span>60-70 min</span>
     <span>RPE 7</span>
   </div>
 </header>
@@ -110,11 +110,11 @@
 
 <script>
   window.liftWorkoutConfig = {
-  "title": "Chest & Tri",
-  "stateKey": "standalone-lift-chest-tri-state",
-  "historyKey": "standalone-lift-chest-tri-history",
-  "source": "Lift Log - Chest & Tri",
-  "exportPrefix": "lift-chest-tri",
+  "title": "Upper Body Today",
+  "stateKey": "standalone-lift-upper-body-state",
+  "historyKey": "standalone-lift-workout-history",
+  "source": "Lift Log",
+  "exportPrefix": "lift-workouts",
   "workout": [
     {
       "group": "Warm Up",
@@ -128,55 +128,71 @@
       "group": "Warm Up",
       "name": "Push-ups",
       "sets": 2,
-      "reps": "8",
+      "reps": "10",
       "rest": 45,
       "track": "none"
     },
     {
-      "group": "Chest",
-      "name": "Barbell bench press",
+      "group": "Push",
+      "name": "Dumbbell bench press",
       "sets": 4,
-      "reps": "5",
-      "rest": 120,
-      "track": "weight"
-    },
-    {
-      "group": "Chest",
-      "name": "Incline dumbbell press",
-      "sets": 3,
-      "reps": "8",
+      "reps": "8-10",
       "rest": 90,
       "track": "weight"
     },
     {
-      "group": "Chest",
-      "name": "Cable fly",
+      "group": "Pull",
+      "name": "Seated cable row",
+      "sets": 4,
+      "reps": "10-12",
+      "rest": 90,
+      "track": "weight"
+    },
+    {
+      "group": "Shoulders",
+      "name": "Dumbbell shoulder press",
       "sets": 3,
-      "reps": "12",
-      "rest": 60,
+      "reps": "8-10",
+      "rest": 90,
+      "track": "weight"
+    },
+    {
+      "group": "Back",
+      "name": "Lat pulldown",
+      "sets": 3,
+      "reps": "10-12",
+      "rest": 75,
       "track": "weight"
     },
     {
       "group": "Chest",
       "name": "Machine chest press",
-      "sets": 2,
-      "reps": "10",
+      "sets": 3,
+      "reps": "10-12",
       "rest": 75,
       "track": "weight"
     },
     {
-      "group": "Triceps",
-      "name": "Rope pressdown",
+      "group": "Rear Delts",
+      "name": "Face pulls",
       "sets": 3,
+      "reps": "12-15",
+      "rest": 60,
+      "track": "weight"
+    },
+    {
+      "group": "Biceps",
+      "name": "Incline dumbbell curl",
+      "sets": 2,
       "reps": "12",
       "rest": 60,
       "track": "weight"
     },
     {
       "group": "Triceps",
-      "name": "Overhead cable extension",
+      "name": "Rope pressdown",
       "sets": 2,
-      "reps": "15",
+      "reps": "12",
       "rest": 60,
       "track": "weight"
     },
@@ -192,10 +208,10 @@
   ]
 };
 </script>
-<script src="./workout-app.js"></script>
+<script src="../assets/js/workout-app.js"></script>
 <script>
   if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('./sw.js');
+    navigator.serviceWorker.register('../sw.js');
   }
 </script>
 </body>

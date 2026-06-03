@@ -1,14 +1,14 @@
-const CACHE_NAME = 'lift-log-v1';
+const CACHE_NAME = 'liftin-v2';
 
 const PAGES = [
   './',
   './index.html',
   './manifest.json',
-  './icon.svg',
-  './chest-tri.html',
-  './upper-body-today.html',
-  './workout-app.css',
-  './workout-app.js',
+  './assets/icons/icon.svg',
+  './workouts/chest-tri.html',
+  './workouts/upper-body-today.html',
+  './assets/css/workout-app.css',
+  './assets/js/workout-app.js',
   './WORKOUTS.md'
 ];
 
