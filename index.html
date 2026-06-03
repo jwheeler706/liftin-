@@ -3,10 +3,12 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-<title>Lift Log</title>
+<title>Liftin'</title>
 <meta name="theme-color" content="#ff7a45">
+<meta name="apple-mobile-web-app-title" content="Liftin'">
 <link rel="manifest" href="./manifest.json">
-<link rel="icon" href="./assets/icons/icon.svg" type="image/svg+xml">
+<link rel="icon" href="./assets/icons/favicon.png" type="image/png">
+<link rel="apple-touch-icon" href="./assets/icons/apple-touch-icon.png">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;600;700;800&family=Roboto+Mono:wght@500;600&display=swap" rel="stylesheet">
 <style>
   :root {
@@ -37,6 +39,19 @@
   }
   .hero {
     padding: 48px 22px 24px;
+  }
+  .brand-row {
+    align-items: center;
+    display: flex;
+    gap: 14px;
+  }
+  .app-mark {
+    border: 1px solid rgba(255, 255, 255, .08);
+    border-radius: 18px;
+    box-shadow: 0 14px 34px rgba(0, 0, 0, .35);
+    flex: 0 0 auto;
+    height: 68px;
+    width: 68px;
   }
   .eyebrow {
     color: var(--accent-2);
@@ -125,8 +140,13 @@
 </head>
 <body>
 <header class="hero">
-  <div class="eyebrow">Training</div>
-  <h1>Lift<span> Log</span></h1>
+  <div class="brand-row">
+    <img class="app-mark" src="./assets/icons/icon-192.png" alt="" width="68" height="68">
+    <div>
+      <div class="eyebrow">Training</div>
+      <h1>Lift<span>in&#39;</span></h1>
+    </div>
+  </div>
 </header>
 
 <div class="section-label">Workouts</div>

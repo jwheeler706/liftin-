@@ -1,10 +1,14 @@
-const CACHE_NAME = 'liftin-v3';
+const CACHE_NAME = 'liftin-v12';
 
 const PAGES = [
   './',
   './index.html',
   './manifest.json',
-  './assets/icons/icon.svg',
+  './assets/icons/favicon.png',
+  './assets/icons/apple-touch-icon.png',
+  './assets/icons/icon-192.png',
+  './assets/icons/icon-512.png',
+  './assets/icons/icon-1024.png',
   './workouts/chest-tri.html',
   './workouts/upper-body-today.html',
   './assets/css/workout-app.css',

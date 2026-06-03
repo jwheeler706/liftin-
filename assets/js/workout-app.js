@@ -466,6 +466,8 @@ const config = window.liftWorkoutConfig;
     };
     history.unshift(session);
     saveHistory(history.slice(0, 20));
+    state.dynamicEnder = null;
+    saveState();
     closeCompleteEditor();
     saveNote.textContent = `Saved ${session.completed}/${session.total} sets · ${formatElapsed(durationSeconds)}`;
   }
@@ -681,12 +683,15 @@ const config = window.liftWorkoutConfig;
         const done = !!state.completed[keyFor(exerciseIndex, setIndex)];
         const log = logText(exercise, keyFor(exerciseIndex, setIndex));
         const active = isActive && setIndex === activeSet;
+        const added = setIndex >= baseExercise.sets;
         const skipped = !!state.skipped[exerciseIndex];
         return `
-          <div class="set-row ${done ? 'is-done' : ''}" data-exercise="${exerciseIndex}" data-set="${setIndex}" role="button" tabindex="0" aria-label="${done ? `Open completed ${exercise.name} set ${setIndex + 1}` : `Start ${exercise.name} set ${setIndex + 1}`}">
+          <div class="set-row ${done ? 'is-done' : ''} ${added ? 'is-added' : ''}" data-exercise="${exerciseIndex}" data-set="${setIndex}" role="button" tabindex="0" aria-label="${done ? `Open completed ${added ? 'extra ' : ''}${exercise.name} set ${setIndex + 1}` : `Start ${added ? 'extra ' : ''}${exercise.name} set ${setIndex + 1}`}">
             <div class="set-copy">
-              Set ${setIndex + 1}${setIndex >= baseExercise.sets ? ' · Added' : ''}${active ? ' · Current' : ''}
-              <span>${skipped ? 'Skipped' : (log || `${targetText(exercise)}${exercise.duration ? '' : ` · ${restSeconds(exercise)}s rest`}`)}${exercise.backupOf ? ` · backup for ${exercise.backupOf}` : ''}</span>
+              <div class="set-copy-main">
+                <span class="set-title">Set ${setIndex + 1}${active ? ' · Current' : ''}</span>
+              </div>
+              <span>${skipped ? 'Skipped' : (log || `${targetText(exercise)}${exercise.duration ? '' : ` · ${restSeconds(exercise)}s rest`}`)}</span>
             </div>
           </div>
         `;
