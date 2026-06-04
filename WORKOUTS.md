@@ -5,7 +5,7 @@ Workout pages share their UI through:
 - `assets/css/workout-app.css`
 - `assets/js/workout-app.js`
 
-To add a workout, duplicate an existing workout page in `workouts/`, such as `workouts/upper-body-today.html` or `workouts/chest-tri.html`, then update only:
+To add a workout, duplicate an existing workout page in `workouts/`, such as `workouts/upper-body.html` or `workouts/chest-tri.html`, then update only:
 
 - `<title>`
 - `<h1>`
