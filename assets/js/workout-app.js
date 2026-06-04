@@ -34,6 +34,36 @@ const config = window.liftWorkoutConfig;
     { group: 'Cardio', name: 'Stationary bike', sets: 1, reps: '10 min', rest: 0, track: 'none', duration: 600 },
     { group: 'Cardio', name: 'Incline treadmill walk', sets: 1, reps: '10 min', rest: 0, track: 'none', duration: 600 }
   ];
+  const warmupPool = {
+    upper: {
+      opener: [
+        { group: 'Warm Up', name: 'Band pull-aparts', sets: 2, reps: '15', rest: 45, track: 'none' },
+        { group: 'Warm Up', name: 'Cable face pull warm-up', sets: 2, reps: '15', rest: 45, track: 'none' },
+        { group: 'Warm Up', name: 'Wall slides', sets: 2, reps: '10', rest: 45, track: 'none' },
+        { group: 'Warm Up', name: 'Band dislocates', sets: 2, reps: '12', rest: 45, track: 'none' }
+      ],
+      pattern: [
+        { group: 'Warm Up', name: 'Push-ups', sets: 2, reps: '8', rest: 45, track: 'none' },
+        { group: 'Warm Up', name: 'Inverted rows', sets: 2, reps: '8', rest: 45, track: 'none' },
+        { group: 'Warm Up', name: 'Scap push-ups', sets: 2, reps: '10', rest: 45, track: 'none' },
+        { group: 'Warm Up', name: 'Light cable row', sets: 2, reps: '12', rest: 45, track: 'none' }
+      ]
+    },
+    push: {
+      opener: [
+        { group: 'Warm Up', name: 'Band pull-aparts', sets: 2, reps: '15', rest: 45, track: 'none' },
+        { group: 'Warm Up', name: 'Cable external rotations', sets: 2, reps: '12 each', rest: 45, track: 'none' },
+        { group: 'Warm Up', name: 'Wall slides', sets: 2, reps: '10', rest: 45, track: 'none' },
+        { group: 'Warm Up', name: 'Band chest openers', sets: 2, reps: '12', rest: 45, track: 'none' }
+      ],
+      pattern: [
+        { group: 'Warm Up', name: 'Push-ups', sets: 2, reps: '8', rest: 45, track: 'none' },
+        { group: 'Warm Up', name: 'Light cable chest press', sets: 2, reps: '12', rest: 45, track: 'none' },
+        { group: 'Warm Up', name: 'Incline push-ups', sets: 2, reps: '10', rest: 45, track: 'none' },
+        { group: 'Warm Up', name: 'Scap push-ups', sets: 2, reps: '10', rest: 45, track: 'none' }
+      ]
+    }
+  };
   const timerTime = document.getElementById('timerTime');
   const workoutElapsed = document.getElementById('workoutElapsed');
   const currentLabel = document.getElementById('currentLabel');
@@ -82,6 +112,7 @@ const config = window.liftWorkoutConfig;
         swaps: saved.swaps || {},
         skipped: saved.skipped || {},
         extraSets: saved.extraSets || {},
+        dynamicWarmups: saved.dynamicWarmups || {},
         dynamicEnder: saved.dynamicEnder || null,
         startedAt: saved.startedAt || null,
         completedAt: saved.completedAt || null,
@@ -90,7 +121,7 @@ const config = window.liftWorkoutConfig;
         currentSet: saved.currentSet === null ? null : (Number.isInteger(saved.currentSet) ? saved.currentSet : 0)
       };
     } catch {
-      return { completed: {}, logs: {}, swaps: {}, skipped: {}, extraSets: {}, dynamicEnder: null, startedAt: null, completedAt: null, adjustedDurationSeconds: null, currentExercise: 0, currentSet: 0 };
+      return { completed: {}, logs: {}, swaps: {}, skipped: {}, extraSets: {}, dynamicWarmups: {}, dynamicEnder: null, startedAt: null, completedAt: null, adjustedDurationSeconds: null, currentExercise: 0, currentSet: 0 };
     }
   }
 
@@ -156,6 +187,10 @@ const config = window.liftWorkoutConfig;
     return index === sourceWorkout.length - 1 && exercise.dynamicFinisher === true;
   }
 
+  function isDynamicWarmup(exercise) {
+    return exercise.dynamicWarmup === true;
+  }
+
   function isEnderIndex(exerciseIndex) {
     return exerciseIndex === workout.length - 1 && !!workout[exerciseIndex]?.dynamicFinisher;
   }
@@ -164,9 +199,29 @@ const config = window.liftWorkoutConfig;
     return finisherPool.filter(option => option.group === group);
   }
 
+  function warmupOptions(category, slot) {
+    return warmupPool[category]?.[slot] || warmupPool.upper[slot] || [];
+  }
+
   function hydrateWorkout(sourceWorkout) {
     let changed = false;
     const hydrated = sourceWorkout.map((exercise, index) => {
+      if (isDynamicWarmup(exercise)) {
+        const category = exercise.warmupCategory || config.warmupCategory || 'upper';
+        const slot = exercise.warmupSlot || 'opener';
+        const options = warmupOptions(category, slot);
+        if (!options.length) return exercise;
+        const key = `${category}:${slot}`;
+        const savedWarmup = state.dynamicWarmups[key] && options.find(option => option.name === state.dynamicWarmups[key].name);
+        if (!savedWarmup) {
+          state.dynamicWarmups[key] = randomFrom(options);
+          changed = true;
+        } else if (JSON.stringify(savedWarmup) !== JSON.stringify(state.dynamicWarmups[key])) {
+          state.dynamicWarmups[key] = savedWarmup;
+          changed = true;
+        }
+        return { ...exercise, ...state.dynamicWarmups[key], dynamicWarmup: true, warmupCategory: category, warmupSlot: slot };
+      }
       if (!isDynamicFinisher(exercise, index, sourceWorkout)) return exercise;
       const savedEnder = state.dynamicEnder && finisherPool.find(option => option.name === state.dynamicEnder.name);
       if (!savedEnder) {
@@ -466,6 +521,7 @@ const config = window.liftWorkoutConfig;
     };
     history.unshift(session);
     saveHistory(history.slice(0, 20));
+    state.dynamicWarmups = {};
     state.dynamicEnder = null;
     saveState();
     closeCompleteEditor();
