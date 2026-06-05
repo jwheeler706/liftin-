@@ -28,8 +28,8 @@ Each workout item uses this shape:
 Use `track: 'none'` for warmups or cooldowns that do not need reps/weight inputs.
 
 For dynamic warmups, keep two warmup placeholders at the top of the workout. Use
-`warmupCategory: 'push'` for chest/tri style days and `warmupCategory: 'upper'`
-for broader upper body days.
+`warmupCategory: 'push'` for chest/tri style days, `warmupCategory: 'upper'`
+for broader upper body days, and `warmupCategory: 'lower'` for leg-focused days.
 
 ```js
 {

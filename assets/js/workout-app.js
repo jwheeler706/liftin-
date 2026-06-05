@@ -18,6 +18,14 @@ const config = window.liftWorkoutConfig;
     'Incline dumbbell press': { name: 'Machine incline press', group: 'Chest', equipment: 'incline press machine' },
     'Cable fly': { name: 'Dumbbell fly', group: 'Chest', equipment: 'dumbbells + bench' },
     'Overhead cable extension': { name: 'Dumbbell overhead extension', group: 'Triceps', equipment: 'dumbbell' },
+    'Barbell back squat': { name: 'Hack squat', group: 'Legs', equipment: 'hack squat machine' },
+    'Romanian deadlift': { name: 'Dumbbell Romanian deadlift', group: 'Legs', equipment: 'dumbbells' },
+    'Leg press': { name: 'Goblet squat', group: 'Legs', equipment: 'dumbbell' },
+    'Walking lunges': { name: 'Reverse lunges', group: 'Legs', equipment: 'dumbbells or bodyweight' },
+    'Seated or lying leg curl': { name: 'Dumbbell hamstring curl', group: 'Legs', equipment: 'dumbbell + bench' },
+    'EZ-bar curl': { name: 'Dumbbell curl', group: 'Arms', equipment: 'dumbbells' },
+    'Alternating dumbbell curl + dumbbell overhead triceps extension': { name: 'Cable curl + rope pressdown superset', group: 'Arms', equipment: 'cable stack' },
+    'Hammer curl + close-grip push-up superset': { name: 'Hammer curl + bench dip superset', group: 'Arms', equipment: 'dumbbells + bench' },
     'Cable crunch': { name: 'Weighted sit-up', group: 'Core', equipment: 'plate or dumbbell' },
     'Hanging knee raise': { name: 'Captain chair knee raise', group: 'Core', equipment: 'captain chair' },
     'Stair stepper': { name: 'Stationary bike', group: 'Cardio', equipment: 'bike' }
@@ -61,6 +69,20 @@ const config = window.liftWorkoutConfig;
         { group: 'Warm Up', name: 'Light cable chest press', sets: 2, reps: '12', rest: 45, track: 'none' },
         { group: 'Warm Up', name: 'Incline push-ups', sets: 2, reps: '10', rest: 45, track: 'none' },
         { group: 'Warm Up', name: 'Scap push-ups', sets: 2, reps: '10', rest: 45, track: 'none' }
+      ]
+    },
+    lower: {
+      opener: [
+        { group: 'Warm Up', name: 'Leg swings', sets: 2, reps: '8 each side', rest: 45, track: 'none' },
+        { group: 'Warm Up', name: 'Hip airplanes', sets: 2, reps: '6 each side', rest: 45, track: 'none' },
+        { group: 'Warm Up', name: 'Glute bridges', sets: 2, reps: '12', rest: 45, track: 'none' },
+        { group: 'Warm Up', name: 'World greatest stretch', sets: 2, reps: '5 each side', rest: 45, track: 'none' }
+      ],
+      pattern: [
+        { group: 'Warm Up', name: 'Bodyweight squat', sets: 2, reps: '10', rest: 45, track: 'none' },
+        { group: 'Warm Up', name: 'Reverse lunge reach', sets: 2, reps: '8 each side', rest: 45, track: 'none' },
+        { group: 'Warm Up', name: 'Cossack squat', sets: 2, reps: '6 each side', rest: 45, track: 'none' },
+        { group: 'Warm Up', name: 'Empty bar squat', sets: 2, reps: '8', rest: 45, track: 'none' }
       ]
     }
   };
