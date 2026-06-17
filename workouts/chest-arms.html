@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-<title>Legs &amp; Arms</title>
+<title>Chest &amp; Arms</title>
 <meta name="theme-color" content="#ff7a45">
 <meta name="apple-mobile-web-app-title" content="Liftin'">
 <link rel="manifest" href="../manifest.json">
@@ -20,9 +20,9 @@
 </div>
 
 <header class="hero">
-  <h1>Legs <span>&amp; Arms</span></h1>
+  <h1>Chest <span>&amp; Arms</span></h1>
   <div class="meta">
-    <span>70-80 min</span>
+    <span>55-65 min</span>
     <span>RPE 7</span>
   </div>
 </header>
@@ -112,11 +112,11 @@
 
 <script>
   window.liftWorkoutConfig = {
-  "title": "Legs & Arms",
-  "stateKey": "standalone-lift-legs-arms-state",
-  "historyKey": "standalone-lift-legs-arms-history",
-  "source": "Lift Log - Legs & Arms",
-  "exportPrefix": "lift-legs-arms",
+  "title": "Chest & Arms",
+  "stateKey": "standalone-lift-chest-arms-state",
+  "historyKey": "standalone-lift-chest-arms-history",
+  "source": "Lift Log - Chest & Arms",
+  "exportPrefix": "lift-chest-arms",
   "workout": [
     {
       "group": "Warm Up",
@@ -126,7 +126,7 @@
       "rest": 45,
       "track": "none",
       "dynamicWarmup": true,
-      "warmupCategory": "lower",
+      "warmupCategory": "push",
       "warmupSlot": "opener"
     },
     {
@@ -137,68 +137,36 @@
       "rest": 45,
       "track": "none",
       "dynamicWarmup": true,
-      "warmupCategory": "lower",
+      "warmupCategory": "push",
       "warmupSlot": "pattern"
     },
     {
-      "group": "Legs",
-      "name": "Barbell back squat",
-      "sets": 5,
-      "reps": "5",
+      "group": "Chest",
+      "name": "Barbell bench press",
+      "sets": 4,
+      "reps": "5-6",
       "rest": 120,
       "track": "weight"
     },
     {
-      "group": "Legs",
-      "name": "Romanian deadlift",
+      "group": "Chest",
+      "name": "Incline dumbbell press",
       "sets": 4,
-      "reps": "8",
+      "reps": "8-10",
       "rest": 90,
       "track": "weight"
     },
     {
-      "group": "Legs",
-      "name": "Leg press",
+      "group": "Chest",
+      "name": "Cable fly",
       "sets": 4,
-      "reps": "10-12",
-      "rest": 90,
-      "track": "weight"
-    },
-    {
-      "group": "Legs",
-      "name": "Walking lunges",
-      "sets": 3,
-      "reps": "10 each leg",
-      "rest": 75,
-      "track": "weight"
-    },
-    {
-      "group": "Legs",
-      "name": "Seated or lying leg curl",
-      "sets": 3,
-      "reps": "12",
+      "reps": "12-15",
       "rest": 60,
       "track": "weight"
     },
     {
       "group": "Arms",
-      "name": "EZ-bar curl",
-      "sets": 4,
-      "reps": "8-10",
-      "rest": 75,
-      "track": "weight"
-    },
-    {
-      "group": "Arms",
-      "name": "Rope pressdown",
-      "sets": 4,
-      "reps": "10-12",
-      "rest": 75,
-      "track": "weight"
-    },
-    {
-      "group": "Arms",
-      "name": "Alternating dumbbell curl + dumbbell overhead triceps extension",
+      "name": "Cable curl + rope pressdown superset",
       "sets": 3,
       "reps": "10-12 each",
       "rest": 60,
@@ -206,7 +174,7 @@
     },
     {
       "group": "Arms",
-      "name": "Hammer curl + close-grip push-up superset",
+      "name": "Incline dumbbell curl + dumbbell overhead triceps extension",
       "sets": 3,
       "reps": "10-12 each",
       "rest": 60,

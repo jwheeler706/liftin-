@@ -1,4 +1,4 @@
-const CACHE_NAME = 'liftin-v15';
+const CACHE_NAME = 'liftin-v19';
 
 const PAGES = [
   './',
@@ -10,6 +10,7 @@ const PAGES = [
   './assets/icons/icon-512.png',
   './assets/icons/icon-1024.png',
   './workouts/chest-tri.html',
+  './workouts/chest-arms.html',
   './workouts/upper-body.html',
   './workouts/legs-arms.html',
   './assets/css/workout-app.css',

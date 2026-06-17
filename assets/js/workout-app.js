@@ -18,6 +18,8 @@ const config = window.liftWorkoutConfig;
     'Incline dumbbell press': { name: 'Machine incline press', group: 'Chest', equipment: 'incline press machine' },
     'Cable fly': { name: 'Dumbbell fly', group: 'Chest', equipment: 'dumbbells + bench' },
     'Overhead cable extension': { name: 'Dumbbell overhead extension', group: 'Triceps', equipment: 'dumbbell' },
+    'Cable curl + rope pressdown superset': { name: 'EZ-bar curl + close-grip push-up superset', group: 'Arms', equipment: 'EZ-bar + bodyweight' },
+    'Incline dumbbell curl + dumbbell overhead triceps extension': { name: 'Hammer curl + close-grip push-up superset', group: 'Arms', equipment: 'dumbbells + bodyweight' },
     'Barbell back squat': { name: 'Hack squat', group: 'Legs', equipment: 'hack squat machine' },
     'Romanian deadlift': { name: 'Dumbbell Romanian deadlift', group: 'Legs', equipment: 'dumbbells' },
     'Leg press': { name: 'Goblet squat', group: 'Legs', equipment: 'dumbbell' },
@@ -33,7 +35,20 @@ const config = window.liftWorkoutConfig;
   const finisherPool = [
     { group: 'Core', name: 'Cable crunch', sets: 2, reps: '12-15', rest: 45, track: 'weight' },
     { group: 'Core', name: 'Hanging knee raise', sets: 2, reps: '8-12', rest: 45, track: 'none' },
-    { group: 'Core', name: 'Plank circuit', sets: 2, reps: '30-45 sec', rest: 45, track: 'none' },
+    {
+      group: 'Core',
+      name: 'Plank circuit',
+      sets: 4,
+      reps: 'Timed',
+      rest: 0,
+      track: 'none',
+      setTargets: [
+        { reps: 'Front plank 1:30', duration: 90 },
+        { reps: 'Left side plank 1:30', duration: 90 },
+        { reps: 'Right side plank 1:30', duration: 90 },
+        { reps: 'Front plank 1:00', duration: 60 }
+      ]
+    },
     { group: 'Core', name: 'Weighted sit-up', sets: 2, reps: '10-12', rest: 45, track: 'weight' },
     { group: 'Core', name: 'Ab wheel rollout', sets: 2, reps: '8-10', rest: 45, track: 'none' },
     { group: 'Core', name: 'Decline sit-up', sets: 2, reps: '10-12', rest: 45, track: 'none' },
@@ -47,13 +62,11 @@ const config = window.liftWorkoutConfig;
       opener: [
         { group: 'Warm Up', name: 'Band pull-aparts', sets: 2, reps: '15', rest: 45, track: 'none' },
         { group: 'Warm Up', name: 'Cable face pull warm-up', sets: 2, reps: '15', rest: 45, track: 'none' },
-        { group: 'Warm Up', name: 'Wall slides', sets: 2, reps: '10', rest: 45, track: 'none' },
         { group: 'Warm Up', name: 'Band dislocates', sets: 2, reps: '12', rest: 45, track: 'none' }
       ],
       pattern: [
         { group: 'Warm Up', name: 'Push-ups', sets: 2, reps: '8', rest: 45, track: 'none' },
         { group: 'Warm Up', name: 'Inverted rows', sets: 2, reps: '8', rest: 45, track: 'none' },
-        { group: 'Warm Up', name: 'Scap push-ups', sets: 2, reps: '10', rest: 45, track: 'none' },
         { group: 'Warm Up', name: 'Light cable row', sets: 2, reps: '12', rest: 45, track: 'none' }
       ]
     },
@@ -61,22 +74,19 @@ const config = window.liftWorkoutConfig;
       opener: [
         { group: 'Warm Up', name: 'Band pull-aparts', sets: 2, reps: '15', rest: 45, track: 'none' },
         { group: 'Warm Up', name: 'Cable external rotations', sets: 2, reps: '12 each', rest: 45, track: 'none' },
-        { group: 'Warm Up', name: 'Wall slides', sets: 2, reps: '10', rest: 45, track: 'none' },
         { group: 'Warm Up', name: 'Band chest openers', sets: 2, reps: '12', rest: 45, track: 'none' }
       ],
       pattern: [
         { group: 'Warm Up', name: 'Push-ups', sets: 2, reps: '8', rest: 45, track: 'none' },
         { group: 'Warm Up', name: 'Light cable chest press', sets: 2, reps: '12', rest: 45, track: 'none' },
-        { group: 'Warm Up', name: 'Incline push-ups', sets: 2, reps: '10', rest: 45, track: 'none' },
-        { group: 'Warm Up', name: 'Scap push-ups', sets: 2, reps: '10', rest: 45, track: 'none' }
+        { group: 'Warm Up', name: 'Incline push-ups', sets: 2, reps: '10', rest: 45, track: 'none' }
       ]
     },
     lower: {
       opener: [
         { group: 'Warm Up', name: 'Leg swings', sets: 2, reps: '8 each side', rest: 45, track: 'none' },
         { group: 'Warm Up', name: 'Hip airplanes', sets: 2, reps: '6 each side', rest: 45, track: 'none' },
-        { group: 'Warm Up', name: 'Glute bridges', sets: 2, reps: '12', rest: 45, track: 'none' },
-        { group: 'Warm Up', name: 'World greatest stretch', sets: 2, reps: '5 each side', rest: 45, track: 'none' }
+        { group: 'Warm Up', name: 'Glute bridges', sets: 2, reps: '12', rest: 45, track: 'none' }
       ],
       pattern: [
         { group: 'Warm Up', name: 'Bodyweight squat', sets: 2, reps: '10', rest: 45, track: 'none' },
@@ -357,12 +367,22 @@ const config = window.liftWorkoutConfig;
     return testRestSeconds || exercise.rest;
   }
 
-  function targetText(exercise) {
+  function setTarget(exercise, setIndex) {
+    return Array.isArray(exercise.setTargets) ? exercise.setTargets[setIndex] : null;
+  }
+
+  function targetText(exercise, setIndex = null) {
+    const target = setIndex === null ? null : setTarget(exercise, setIndex);
+    if (target) return target.reps;
     return exercise.duration ? exercise.reps : `${exercise.reps} reps`;
   }
 
-  function displayTimerSeconds(exercise) {
-    return exercise.duration || restSeconds(exercise);
+  function timedSetSeconds(exercise, setIndex = null) {
+    return setTarget(exercise, setIndex)?.duration || exercise.duration || null;
+  }
+
+  function displayTimerSeconds(exercise, setIndex = null) {
+    return timedSetSeconds(exercise, setIndex) || restSeconds(exercise);
   }
 
   function setTimer(seconds) {
@@ -410,7 +430,7 @@ const config = window.liftWorkoutConfig;
   }
 
   function startTimedSet(exerciseIndex, setIndex, exercise) {
-    startTimer(exercise.duration, () => {
+    startTimer(timedSetSeconds(exercise, setIndex), () => {
       completeSetWithoutRest(exerciseIndex, setIndex);
       enterFocusMode();
     });
@@ -580,7 +600,7 @@ const config = window.liftWorkoutConfig;
     state.currentExercise = exerciseIndex;
     state.currentSet = setIndex;
     saveState();
-    if (!timerId) setTimer(displayTimerSeconds(workout[exerciseIndex]));
+    if (!timerId) setTimer(displayTimerSeconds(workout[exerciseIndex], setIndex));
     render();
   }
 
@@ -615,7 +635,7 @@ const config = window.liftWorkoutConfig;
     state.currentExercise = exerciseIndex;
     state.currentSet = setIndex;
     saveState();
-    setTimer(displayTimerSeconds(workout[exerciseIndex]));
+    setTimer(displayTimerSeconds(workout[exerciseIndex], setIndex));
     render();
   }
 
@@ -651,7 +671,7 @@ const config = window.liftWorkoutConfig;
     state.currentExercise = exerciseIndex;
     state.currentSet = 0;
     saveState();
-    setTimer(displayTimerSeconds(workout[exerciseIndex]));
+    setTimer(displayTimerSeconds(workout[exerciseIndex], 0));
     render();
   }
 
@@ -687,7 +707,7 @@ const config = window.liftWorkoutConfig;
     state.currentSet = 0;
     stopTimer();
     saveState();
-    setTimer(displayTimerSeconds(workout[exerciseIndex]));
+    setTimer(displayTimerSeconds(workout[exerciseIndex], 0));
     render();
   }
 
@@ -723,12 +743,12 @@ const config = window.liftWorkoutConfig;
       focusTitle.classList.remove('finished');
       currentLabel.textContent = current.group;
       currentTitle.textContent = current.name;
-      currentDose.textContent = `Set ${activeSet + 1} of ${current.sets} · ${targetText(current)}`;
+      currentDose.textContent = `Set ${activeSet + 1} of ${current.sets} · ${targetText(current, activeSet)}`;
       focusGroup.textContent = current.group;
       focusTitle.textContent = current.name;
-      focusSet.textContent = `Set ${activeSet + 1} of ${current.sets} · ${targetText(current)}`;
-      focusLogSet.disabled = !!timerId && !!current.duration && !currentComplete;
-      focusLogSet.textContent = currentSkipped ? 'Unskip Exercise' : (currentComplete ? 'Undo Set' : (current.duration ? 'Start Timer' : 'Log Set'));
+      focusSet.textContent = `Set ${activeSet + 1} of ${current.sets} · ${targetText(current, activeSet)}`;
+      focusLogSet.disabled = !!timerId && !!timedSetSeconds(current, activeSet) && !currentComplete;
+      focusLogSet.textContent = currentSkipped ? 'Unskip Exercise' : (currentComplete ? 'Undo Set' : (timedSetSeconds(current, activeSet) ? 'Start Timer' : 'Log Set'));
       focusNext.classList.toggle('is-hidden', !timerId || !currentComplete || currentSkipped);
       const planned = workout[activeExercise];
       const backup = backupFor(planned);
@@ -737,7 +757,7 @@ const config = window.liftWorkoutConfig;
       const ender = isEnderIndex(activeExercise);
       focusBackup.classList.toggle('is-hidden', !backup || currentComplete || started || currentSkipped);
       focusSkip.classList.toggle('is-hidden', currentComplete || started || currentSkipped);
-      focusAddSet.classList.toggle('is-hidden', !lastSet || !currentComplete || currentSkipped || !!current.duration);
+      focusAddSet.classList.toggle('is-hidden', !lastSet || !currentComplete || currentSkipped || !!timedSetSeconds(current, activeSet));
       focusSwitchEnder.classList.toggle('is-hidden', !ender || currentComplete || started || currentSkipped);
       if (ender && !currentComplete && !started && !currentSkipped) {
         focusSwitchEnder.textContent = current.group === 'Cardio' ? 'Switch to Abs' : 'Switch to Cardio';
@@ -769,7 +789,7 @@ const config = window.liftWorkoutConfig;
               <div class="set-copy-main">
                 <span class="set-title">Set ${setIndex + 1}${active ? ' · Current' : ''}</span>
               </div>
-              <span>${skipped ? 'Skipped' : (log || `${targetText(exercise)}${exercise.duration ? '' : ` · ${restSeconds(exercise)}s rest`}`)}</span>
+              <span>${skipped ? 'Skipped' : (log || `${targetText(exercise, setIndex)}${timedSetSeconds(exercise, setIndex) ? '' : ` · ${restSeconds(exercise)}s rest`}`)}</span>
             </div>
           </div>
         `;
@@ -836,7 +856,7 @@ const config = window.liftWorkoutConfig;
       undoSet(exerciseIndex, setIndex);
       return;
     }
-    if (exercise.duration) {
+    if (timedSetSeconds(exercise, setIndex)) {
       startTimedSet(exerciseIndex, setIndex, exercise);
       return;
     }
@@ -887,7 +907,7 @@ const config = window.liftWorkoutConfig;
     if (state.currentExercise !== null) switchEnder(state.currentExercise);
   });
 
-  setTimer(displayTimerSeconds(workout[state.currentExercise] || workout[0]));
+  setTimer(displayTimerSeconds(workout[state.currentExercise] || workout[0], state.currentSet));
   if (state.startedAt && !state.completedAt) startWorkoutClock();
   updateWorkoutClock();
   render();
