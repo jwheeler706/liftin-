@@ -1,4 +1,4 @@
-const CACHE_NAME = 'liftin-v20';
+const CACHE_NAME = 'liftin-v21';
 
 const PAGES = [
   './',
