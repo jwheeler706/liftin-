@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-<title>Chest &amp; Arms</title>
+<title>Game Day Chest &amp; Tri</title>
 <meta name="theme-color" content="#ff7a45">
 <meta name="apple-mobile-web-app-title" content="Liftin'">
 <link rel="manifest" href="../manifest.json">
@@ -20,10 +20,10 @@
 </div>
 
 <header class="hero">
-  <h1>Chest <span>&amp; Arms</span></h1>
+  <h1>Game Day <span>Chest &amp; Tri</span></h1>
   <div class="meta">
     <span>55-65 min</span>
-    <span>RPE 7</span>
+    <span>RPE 6-7</span>
   </div>
 </header>
 
@@ -112,12 +112,21 @@
 
 <script>
   window.liftWorkoutConfig = {
-  "title": "Chest & Arms",
-  "stateKey": "standalone-lift-chest-arms-state",
-  "historyKey": "standalone-lift-chest-arms-history",
-  "source": "Lift Log - Chest & Arms",
-  "exportPrefix": "lift-chest-arms",
+  "title": "Game Day Chest & Tri",
+  "stateKey": "standalone-lift-game-day-chest-tri-state",
+  "historyKey": "standalone-lift-game-day-chest-tri-history",
+  "source": "Lift Log - Game Day Chest & Tri",
+  "exportPrefix": "lift-game-day-chest-tri",
   "workout": [
+    {
+      "group": "Game Prep",
+      "name": "Easy bike",
+      "sets": 1,
+      "reps": "4 min",
+      "rest": 0,
+      "track": "none",
+      "duration": 240
+    },
     {
       "group": "Warm Up",
       "name": "Dynamic Warmup",
@@ -149,45 +158,81 @@
       "track": "weight"
     },
     {
+      "group": "Game Prep",
+      "name": "Hip mobility reset",
+      "sets": 1,
+      "reps": "2 min",
+      "rest": 0,
+      "track": "none",
+      "duration": 120
+    },
+    {
       "group": "Chest",
       "name": "Incline dumbbell press",
-      "sets": 4,
+      "sets": 3,
       "reps": "8-10",
       "rest": 90,
       "track": "weight"
     },
     {
+      "group": "Game Prep",
+      "name": "T-spine rotations",
+      "sets": 1,
+      "reps": "90 sec",
+      "rest": 0,
+      "track": "none",
+      "duration": 90
+    },
+    {
       "group": "Chest",
       "name": "Cable fly",
-      "sets": 4,
+      "sets": 3,
       "reps": "12-15",
       "rest": 60,
       "track": "weight"
     },
     {
-      "group": "Arms",
-      "name": "Cable curl + rope pressdown superset",
+      "group": "Triceps",
+      "name": "Rope pressdown",
       "sets": 3,
-      "reps": "10-12 each",
+      "reps": "12",
       "rest": 60,
-      "track": "none"
+      "track": "weight"
     },
     {
-      "group": "Arms",
-      "name": "Incline dumbbell curl + dumbbell overhead triceps extension",
+      "group": "Triceps",
+      "name": "Overhead cable extension",
       "sets": 3,
-      "reps": "10-12 each",
+      "reps": "12-15",
       "rest": 60,
-      "track": "none"
+      "track": "weight"
     },
     {
-      "group": "Finisher",
-      "name": "Dynamic Ender",
-      "sets": 2,
-      "reps": "10 min",
+      "group": "Game Prep",
+      "name": "Lateral shuffles",
+      "sets": 1,
+      "reps": "60 sec",
       "rest": 0,
       "track": "none",
-      "dynamicFinisher": true
+      "duration": 60
+    },
+    {
+      "group": "Game Prep",
+      "name": "High knees",
+      "sets": 1,
+      "reps": "40 sec",
+      "rest": 0,
+      "track": "none",
+      "duration": 40
+    },
+    {
+      "group": "Game Prep",
+      "name": "Hip flexor stretch",
+      "sets": 1,
+      "reps": "90 sec",
+      "rest": 0,
+      "track": "none",
+      "duration": 90
     }
   ]
 };
