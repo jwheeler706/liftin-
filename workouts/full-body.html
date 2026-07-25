@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-<title>Upper Body</title>
+<title>Full Body</title>
 <meta name="theme-color" content="#ff7a45">
 <meta name="apple-mobile-web-app-title" content="Liftin'">
 <link rel="manifest" href="../manifest.json">
@@ -20,9 +20,9 @@
 </div>
 
 <header class="hero">
-  <h1>Upper <span>Body</span></h1>
+  <h1>Full <span>Body</span></h1>
   <div class="meta">
-    <span>50-60 min</span>
+    <span>60-70 min</span>
     <span>RPE 7</span>
   </div>
 </header>
@@ -112,12 +112,32 @@
 
 <script>
   window.liftWorkoutConfig = {
-  "title": "Upper Body",
-  "stateKey": "standalone-lift-upper-body-state",
-  "historyKey": "standalone-lift-workout-history",
-  "source": "Lift Log",
-  "exportPrefix": "lift-workouts",
+  "title": "Full Body",
+  "stateKey": "standalone-lift-full-body-state",
+  "historyKey": "standalone-lift-full-body-history",
+  "source": "Lift Log - Full Body",
+  "exportPrefix": "lift-full-body",
   "workout": [
+    {
+      "group": "Warm Up",
+      "name": "Easy bike",
+      "sets": 1,
+      "reps": "4 min",
+      "rest": 0,
+      "track": "none",
+      "duration": 240
+    },
+    {
+      "group": "Warm Up",
+      "name": "Dynamic Warmup",
+      "sets": 2,
+      "reps": "Prep",
+      "rest": 45,
+      "track": "none",
+      "dynamicWarmup": true,
+      "warmupCategory": "lower",
+      "warmupSlot": "opener"
+    },
     {
       "group": "Warm Up",
       "name": "Dynamic Warmup",
@@ -130,29 +150,34 @@
       "warmupSlot": "opener"
     },
     {
-      "group": "Warm Up",
-      "name": "Dynamic Warmup",
-      "sets": 2,
-      "reps": "Prep",
-      "rest": 45,
-      "track": "none",
-      "dynamicWarmup": true,
-      "warmupCategory": "upper",
-      "warmupSlot": "pattern"
+      "group": "Legs",
+      "name": "Barbell back squat",
+      "sets": 4,
+      "reps": "5-6",
+      "rest": 120,
+      "track": "weight"
     },
     {
-      "group": "Push",
-      "name": "Dumbbell bench press",
+      "group": "Chest",
+      "name": "Barbell bench press",
+      "sets": 4,
+      "reps": "5-6",
+      "rest": 120,
+      "track": "weight"
+    },
+    {
+      "group": "Back",
+      "name": "Seated cable row",
       "sets": 4,
       "reps": "8-10",
       "rest": 90,
       "track": "weight"
     },
     {
-      "group": "Pull",
-      "name": "Seated cable row",
-      "sets": 4,
-      "reps": "10-12",
+      "group": "Legs",
+      "name": "Romanian deadlift",
+      "sets": 3,
+      "reps": "8-10",
       "rest": 90,
       "track": "weight"
     },
@@ -161,7 +186,7 @@
       "name": "Dumbbell shoulder press",
       "sets": 3,
       "reps": "8-10",
-      "rest": 90,
+      "rest": 75,
       "track": "weight"
     },
     {
@@ -173,18 +198,18 @@
       "track": "weight"
     },
     {
-      "group": "Rear Delts",
-      "name": "Face pulls",
+      "group": "Arms",
+      "name": "Cable curl + rope pressdown superset",
       "sets": 3,
-      "reps": "12-15",
+      "reps": "10-12 each",
       "rest": 60,
-      "track": "weight"
+      "track": "none"
     },
     {
       "group": "Arms",
-      "name": "Curl + pressdown superset",
+      "name": "Hammer curl + close-grip push-up superset",
       "sets": 3,
-      "reps": "12 each",
+      "reps": "10-12 each",
       "rest": 60,
       "track": "none"
     },
@@ -195,7 +220,8 @@
       "reps": "10 min",
       "rest": 0,
       "track": "none",
-      "dynamicFinisher": true
+      "dynamicFinisher": true,
+      "finisherGroup": "Core"
     }
   ]
 };

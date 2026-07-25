@@ -255,9 +255,11 @@ const config = window.liftWorkoutConfig;
         return { ...exercise, ...state.dynamicWarmups[key], dynamicWarmup: true, warmupCategory: category, warmupSlot: slot };
       }
       if (!isDynamicFinisher(exercise, index, sourceWorkout)) return exercise;
-      const savedEnder = state.dynamicEnder && finisherPool.find(option => option.name === state.dynamicEnder.name);
+      const enderOptions = exercise.finisherGroup ? finisherOptions(exercise.finisherGroup) : finisherPool;
+      const availableEnders = enderOptions.length ? enderOptions : finisherPool;
+      const savedEnder = state.dynamicEnder && availableEnders.find(option => option.name === state.dynamicEnder.name);
       if (!savedEnder) {
-        state.dynamicEnder = randomFrom(finisherPool);
+        state.dynamicEnder = randomFrom(availableEnders);
         changed = true;
       } else if (JSON.stringify(savedEnder) !== JSON.stringify(state.dynamicEnder)) {
         state.dynamicEnder = savedEnder;
