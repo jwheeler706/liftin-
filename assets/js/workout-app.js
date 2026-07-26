@@ -131,7 +131,6 @@ const config = window.liftWorkoutConfig;
   const workout = hydrateWorkout(baseWorkout);
   let timerSeconds = restSeconds(workout[0]);
   let timerId = null;
-  let timerDone = null;
   let workoutClockId = null;
   pruneState();
 
@@ -146,6 +145,7 @@ const config = window.liftWorkoutConfig;
         extraSets: saved.extraSets || {},
         dynamicWarmups: saved.dynamicWarmups || {},
         dynamicEnder: saved.dynamicEnder || null,
+        activeTimer: saved.activeTimer || null,
         startedAt: saved.startedAt || null,
         completedAt: saved.completedAt || null,
         adjustedDurationSeconds: Number.isFinite(saved.adjustedDurationSeconds) ? saved.adjustedDurationSeconds : null,
@@ -153,7 +153,7 @@ const config = window.liftWorkoutConfig;
         currentSet: saved.currentSet === null ? null : (Number.isInteger(saved.currentSet) ? saved.currentSet : 0)
       };
     } catch {
-      return { completed: {}, logs: {}, swaps: {}, skipped: {}, extraSets: {}, dynamicWarmups: {}, dynamicEnder: null, startedAt: null, completedAt: null, adjustedDurationSeconds: null, currentExercise: 0, currentSet: 0 };
+      return { completed: {}, logs: {}, swaps: {}, skipped: {}, extraSets: {}, dynamicWarmups: {}, dynamicEnder: null, activeTimer: null, startedAt: null, completedAt: null, adjustedDurationSeconds: null, currentExercise: 0, currentSet: 0 };
     }
   }
 
@@ -189,6 +189,23 @@ const config = window.liftWorkoutConfig;
         }
       });
     });
+    if (state.activeTimer) {
+      const exerciseIndex = Number(state.activeTimer.exerciseIndex);
+      const setIndex = Number(state.activeTimer.setIndex);
+      const endsAt = new Date(state.activeTimer.endsAt).getTime();
+      const validKind = state.activeTimer.kind === 'rest' || state.activeTimer.kind === 'set';
+      if (!validKind
+        || !Number.isInteger(exerciseIndex)
+        || !Number.isInteger(setIndex)
+        || exerciseIndex < 0
+        || exerciseIndex >= workout.length
+        || setIndex < 0
+        || setIndex >= exerciseSetCount(exerciseIndex)
+        || !Number.isFinite(endsAt)) {
+        state.activeTimer = null;
+        changed = true;
+      }
+    }
     if (state.currentExercise !== null && (!Number.isInteger(state.currentExercise) || state.currentExercise < 0 || state.currentExercise >= workout.length)) {
       const next = findNextOpen();
       state.currentExercise = next ? next.exerciseIndex : null;
@@ -400,25 +417,68 @@ const config = window.liftWorkoutConfig;
   function stopTimer() {
     clearInterval(timerId);
     timerId = null;
-    timerDone = null;
+    state.activeTimer = null;
+    saveState();
   }
 
-  function startTimer(seconds, onDone) {
+  function isTimerActive() {
+    return !!state.activeTimer;
+  }
+
+  function renderTimer(seconds) {
+    timerSeconds = Math.max(0, seconds);
+    timerTime.textContent = formatTime(timerSeconds);
+    focusTimerTime.textContent = formatTime(timerSeconds);
+  }
+
+  function remainingTimerSeconds() {
+    if (!state.activeTimer?.endsAt) return timerSeconds;
+    const endsAt = new Date(state.activeTimer.endsAt).getTime();
+    return Math.max(0, Math.ceil((endsAt - Date.now()) / 1000));
+  }
+
+  function completeExpiredTimer() {
+    const activeTimer = state.activeTimer;
+    if (!activeTimer) return;
+    state.activeTimer = null;
+    saveState();
+    renderTimer(0);
+    if (activeTimer.kind === 'set') {
+      completeSetWithoutRest(activeTimer.exerciseIndex, activeTimer.setIndex);
+      enterFocusMode();
+      return;
+    }
+    advanceToNextOpen();
+  }
+
+  function tickTimer() {
+    if (!state.activeTimer) return;
+    const remaining = remainingTimerSeconds();
+    renderTimer(remaining);
+    if (remaining <= 0) {
+      clearInterval(timerId);
+      timerId = null;
+      completeExpiredTimer();
+    }
+  }
+
+  function startTimer(seconds, timerState) {
     stopTimer();
-    setTimer(seconds);
-    timerDone = onDone || null;
-    timerId = setInterval(() => {
-      timerSeconds -= 1;
-      timerTime.textContent = formatTime(Math.max(timerSeconds, 0));
-      focusTimerTime.textContent = formatTime(Math.max(timerSeconds, 0));
-      if (timerSeconds <= 0) {
-        const done = timerDone;
-        stopTimer();
-        timerTime.textContent = '00:00';
-        focusTimerTime.textContent = '00:00';
-        if (done) done();
-      }
-    }, 1000);
+    state.activeTimer = {
+      ...timerState,
+      endsAt: new Date(Date.now() + (seconds * 1000)).toISOString()
+    };
+    saveState();
+    tickTimer();
+    timerId = setInterval(tickTimer, 1000);
+  }
+
+  function resumeTimer() {
+    if (!state.activeTimer) return;
+    clearInterval(timerId);
+    timerId = null;
+    tickTimer();
+    if (state.activeTimer) timerId = setInterval(tickTimer, 1000);
   }
 
   function completeSetWithoutRest(exerciseIndex, setIndex) {
@@ -432,19 +492,15 @@ const config = window.liftWorkoutConfig;
   }
 
   function startTimedSet(exerciseIndex, setIndex, exercise) {
-    startTimer(timedSetSeconds(exercise, setIndex), () => {
-      completeSetWithoutRest(exerciseIndex, setIndex);
-      enterFocusMode();
-    });
+    startTimer(timedSetSeconds(exercise, setIndex), { kind: 'set', exerciseIndex, setIndex });
     focusLogSet.disabled = true;
     focusLogSet.textContent = 'Timer Running';
   }
 
   function skipRest() {
-    if (!timerId) return;
+    if (!isTimerActive() || state.activeTimer.kind !== 'rest') return;
     stopTimer();
-    timerTime.textContent = '00:00';
-    focusTimerTime.textContent = '00:00';
+    renderTimer(0);
     advanceToNextOpen();
     enterFocusMode();
   }
@@ -602,7 +658,7 @@ const config = window.liftWorkoutConfig;
     state.currentExercise = exerciseIndex;
     state.currentSet = setIndex;
     saveState();
-    if (!timerId) setTimer(displayTimerSeconds(workout[exerciseIndex], setIndex));
+    if (!isTimerActive()) setTimer(displayTimerSeconds(workout[exerciseIndex], setIndex));
     render();
   }
 
@@ -625,7 +681,7 @@ const config = window.liftWorkoutConfig;
     state.completed[key] = true;
     state.currentExercise = exerciseIndex;
     state.currentSet = setIndex;
-    startTimer(restSeconds(workout[exerciseIndex]), advanceToNextOpen);
+    startTimer(restSeconds(workout[exerciseIndex]), { kind: 'rest', exerciseIndex, setIndex });
     saveState();
     render();
   }
@@ -749,9 +805,9 @@ const config = window.liftWorkoutConfig;
       focusGroup.textContent = current.group;
       focusTitle.textContent = current.name;
       focusSet.textContent = `Set ${activeSet + 1} of ${current.sets} · ${targetText(current, activeSet)}`;
-      focusLogSet.disabled = !!timerId && !!timedSetSeconds(current, activeSet) && !currentComplete;
+      focusLogSet.disabled = isTimerActive() && !!timedSetSeconds(current, activeSet) && !currentComplete;
       focusLogSet.textContent = currentSkipped ? 'Unskip Exercise' : (currentComplete ? 'Undo Set' : (timedSetSeconds(current, activeSet) ? 'Start Timer' : 'Log Set'));
-      focusNext.classList.toggle('is-hidden', !timerId || !currentComplete || currentSkipped);
+      focusNext.classList.toggle('is-hidden', !isTimerActive() || state.activeTimer.kind !== 'rest' || !currentComplete || currentSkipped);
       const planned = workout[activeExercise];
       const backup = backupFor(planned);
       const started = exerciseStarted(activeExercise);
@@ -909,7 +965,28 @@ const config = window.liftWorkoutConfig;
     if (state.currentExercise !== null) switchEnder(state.currentExercise);
   });
 
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible') {
+      resumeTimer();
+      updateWorkoutClock();
+      render();
+    }
+  });
+
+  window.addEventListener('focus', () => {
+    resumeTimer();
+    updateWorkoutClock();
+    render();
+  });
+
+  window.addEventListener('pageshow', () => {
+    resumeTimer();
+    updateWorkoutClock();
+    render();
+  });
+
   setTimer(displayTimerSeconds(workout[state.currentExercise] || workout[0], state.currentSet));
+  resumeTimer();
   if (state.startedAt && !state.completedAt) startWorkoutClock();
   updateWorkoutClock();
   render();
