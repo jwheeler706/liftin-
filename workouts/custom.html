@@ -15,7 +15,24 @@
 <body>
 <script>
   const customPlanKey = 'standalone-lift-custom-workout-plan';
-  document.body.classList.add(localStorage.getItem(customPlanKey) ? 'custom-ready' : 'custom-empty');
+  const savedCustomWorkoutsKey = 'standalone-lift-saved-custom-workouts';
+  const customRandomExercisePoolKey = 'standalone-lift-custom-random-exercise-pool';
+  const savedWorkoutId = new URLSearchParams(window.location.search).get('saved');
+
+  function readCustomJson(key, fallback) {
+    try {
+      return JSON.parse(localStorage.getItem(key) || JSON.stringify(fallback));
+    } catch (error) {
+      return fallback;
+    }
+  }
+
+  const savedCustomWorkouts = readCustomJson(savedCustomWorkoutsKey, []);
+  const selectedSavedWorkout = Array.isArray(savedCustomWorkouts)
+    ? savedCustomWorkouts.find(workout => workout.id === savedWorkoutId)
+    : null;
+  const savedCustomPlan = selectedSavedWorkout || readCustomJson(customPlanKey, null);
+  document.body.classList.add(savedCustomPlan?.workout?.length ? 'custom-ready' : 'custom-empty');
 </script>
 <div class="back-bar"><a href="../index.html" aria-label="Back to Lift">&#8249;</a></div>
 <div class="workout-clock" aria-live="polite">
@@ -24,7 +41,7 @@
 </div>
 
 <header class="hero">
-  <h1>Custom <span>Workout</span></h1>
+  <h1 id="customWorkoutTitle">Custom <span>Workout</span></h1>
   <div class="meta">
     <span>Build on the fly</span>
     <span id="customWorkoutCount">0 exercises</span>
@@ -102,6 +119,30 @@
   </div>
   <div class="builder-list" id="customBuilderList"></div>
   <div class="builder-note" id="customBuilderNote"></div>
+  <div class="builder-save">
+    <div class="builder-save-head">
+      <div>
+        <div class="label">Home Screen</div>
+        <h3>Save Workout</h3>
+      </div>
+    </div>
+    <form class="builder-save-form" id="saveCustomWorkoutForm">
+      <label class="builder-field builder-field-wide" for="savedWorkoutName">Workout Name
+        <input id="savedWorkoutName" autocomplete="off" placeholder="Hotel Arms">
+      </label>
+      <label class="builder-field" for="savedWorkoutCategory">Category
+        <select id="savedWorkoutCategory"></select>
+      </label>
+      <label class="builder-field" for="newWorkoutCategory">New Category
+        <input id="newWorkoutCategory" autocomplete="off" placeholder="Pull">
+      </label>
+      <button type="submit" class="primary builder-add" id="saveCustomWorkoutHome">Save</button>
+    </form>
+    <div class="builder-backup-actions">
+      <button type="button" class="ghost" id="exportCustomLayouts">Export</button>
+      <button type="button" class="ghost" id="deleteSavedWorkout" hidden>Delete Saved</button>
+    </div>
+  </div>
 </section>
 
 <section class="current" aria-live="polite">
@@ -188,19 +229,18 @@
 </section>
 
 <script>
-  const savedCustomPlan = JSON.parse(localStorage.getItem(customPlanKey) || 'null');
   window.liftWorkoutConfig = {
-    title: 'Custom Workout',
-    stateKey: 'standalone-lift-custom-state',
-    historyKey: 'standalone-lift-custom-history',
-    source: 'Lift Log - Custom Workout',
-    exportPrefix: 'lift-custom',
+    title: selectedSavedWorkout?.name || 'Custom Workout',
+    stateKey: selectedSavedWorkout ? `standalone-lift-custom-state-${selectedSavedWorkout.id}` : 'standalone-lift-custom-state',
+    historyKey: selectedSavedWorkout ? `standalone-lift-custom-history-${selectedSavedWorkout.id}` : 'standalone-lift-custom-history',
+    source: `Lift Log - ${selectedSavedWorkout?.name || 'Custom Workout'}`,
+    exportPrefix: selectedSavedWorkout ? `lift-custom-${selectedSavedWorkout.id}` : 'lift-custom',
     workout: savedCustomPlan?.workout?.length ? savedCustomPlan.workout : []
   };
 </script>
-<script src="../assets/js/workout-app.js?v=28"></script>
+<script src="../assets/js/workout-app.js?v=30"></script>
 <script>
-  const customStateKey = 'standalone-lift-custom-state';
+  const customStateKey = window.liftWorkoutConfig.stateKey;
   const customForm = document.getElementById('customExerciseForm');
   const customList = document.getElementById('customBuilderList');
   const customCount = document.getElementById('customWorkoutCount');
@@ -214,7 +254,19 @@
   const clearCustom = document.getElementById('clearCustomWorkout');
   const randomCategory = document.getElementById('randomExerciseCategory');
   const addRandom = document.getElementById('addRandomExercise');
+  const builderSave = document.querySelector('.builder-save');
+  const customWorkoutTitle = document.getElementById('customWorkoutTitle');
+  const saveCustomWorkoutForm = document.getElementById('saveCustomWorkoutForm');
+  const savedWorkoutName = document.getElementById('savedWorkoutName');
+  const savedWorkoutCategory = document.getElementById('savedWorkoutCategory');
+  const newWorkoutCategory = document.getElementById('newWorkoutCategory');
+  const exportCustomLayouts = document.getElementById('exportCustomLayouts');
+  const deleteSavedWorkout = document.getElementById('deleteSavedWorkout');
   let customExercises = savedCustomPlan?.workout?.length ? [...savedCustomPlan.workout] : [];
+  let savedWorkoutStore = Array.isArray(savedCustomWorkouts) ? [...savedCustomWorkouts] : [];
+  let customRandomExercisePool = readCustomJson(customRandomExercisePoolKey, {});
+  let activeSavedWorkoutId = selectedSavedWorkout?.id || null;
+  let deleteRevealTimer = null;
   const randomExercisePool = {
     'Warm Up': [
       { group: 'Warm Up', name: 'Band pull-aparts', sets: 2, reps: '15', rest: 45, track: 'none' },
@@ -292,7 +344,108 @@
     }[character]));
   }
 
+  function categoryId(category) {
+    return String(category).trim().toLowerCase().replace(/[^a-z0-9]+/g, '-') || 'custom';
+  }
+
+  function nextSavedWorkoutId() {
+    if (window.crypto?.randomUUID) return window.crypto.randomUUID();
+    return `custom-${Date.now()}-${Math.random().toString(16).slice(2)}`;
+  }
+
+  function exercisePoolName(value) {
+    return String(value || '').trim().toLowerCase();
+  }
+
+  function normalizeRandomExercise(exercise) {
+    if (!exercise?.name) return null;
+    const group = String(exercise.group || 'Strength').trim() || 'Strength';
+    const normalized = {
+      group,
+      name: String(exercise.name).trim(),
+      sets: Math.max(1, Math.min(10, Number(exercise.sets) || 1)),
+      reps: String(exercise.reps || 'Timed').trim(),
+      rest: Math.max(0, Number(exercise.rest) || 0),
+      track: ['weight', 'reps', 'none'].includes(exercise.track) ? exercise.track : 'none'
+    };
+    if (Number.isFinite(exercise.duration)) normalized.duration = exercise.duration;
+    if (Array.isArray(exercise.setTargets)) normalized.setTargets = exercise.setTargets;
+    return normalized.name ? normalized : null;
+  }
+
+  function ensureRandomCategoryOption(category) {
+    if ([...randomCategory.options].some(option => option.value.toLowerCase() === category.toLowerCase())) return;
+    const option = document.createElement('option');
+    option.value = category;
+    option.textContent = category;
+    randomCategory.appendChild(option);
+  }
+
+  function saveCustomRandomExercisePool() {
+    localStorage.setItem(customRandomExercisePoolKey, JSON.stringify(customRandomExercisePool));
+  }
+
+  function mergeRandomExercise(exercise, shouldPersist = true) {
+    const normalized = normalizeRandomExercise(exercise);
+    if (!normalized) return false;
+    const category = normalized.group;
+    randomExercisePool[category] = randomExercisePool[category] || [];
+    ensureRandomCategoryOption(category);
+    const exists = randomExercisePool[category].some(option => exercisePoolName(option.name) === exercisePoolName(normalized.name));
+    if (exists) return false;
+    randomExercisePool[category].push(normalized);
+    if (shouldPersist) {
+      customRandomExercisePool[category] = customRandomExercisePool[category] || [];
+      customRandomExercisePool[category].push(normalized);
+    }
+    return true;
+  }
+
+  function mergeWorkoutExercisesIntoRandomPool(workouts) {
+    let added = 0;
+    workouts.forEach(workout => {
+      (workout.workout || []).forEach(exercise => {
+        if (mergeRandomExercise(exercise)) added += 1;
+      });
+    });
+    if (added) saveCustomRandomExercisePool();
+    return added;
+  }
+
+  function hydrateCustomRandomExercisePool() {
+    Object.values(customRandomExercisePool || {}).flat().forEach(exercise => {
+      mergeRandomExercise(exercise, false);
+    });
+  }
+
+  function savedCategories() {
+    const defaults = ['Push', 'Upper / Full', 'Legs / Mixed'];
+    const customCategories = savedWorkoutStore
+      .map(workout => workout.category)
+      .filter(Boolean);
+    return [...new Map([...defaults, ...customCategories].map(category => [category.toLowerCase(), category])).values()];
+  }
+
+  function saveSavedWorkoutStore() {
+    localStorage.setItem(savedCustomWorkoutsKey, JSON.stringify(savedWorkoutStore));
+  }
+
+  function renderSavedCategoryOptions() {
+    const currentCategory = selectedSavedWorkout?.category || savedWorkoutCategory.value || 'Push';
+    const categories = savedCategories();
+    savedWorkoutCategory.innerHTML = categories.map(category => (
+      `<option value="${escapeCustomText(category)}">${escapeCustomText(category)}</option>`
+    )).join('') + '<option value="__new">New category</option>';
+    savedWorkoutCategory.value = categories.some(category => category.toLowerCase() === currentCategory.toLowerCase())
+      ? currentCategory
+      : '__new';
+    if (savedWorkoutCategory.value === '__new') {
+      newWorkoutCategory.value = currentCategory;
+    }
+  }
+
   function saveCustomPlan() {
+    if (selectedSavedWorkout) return;
     localStorage.setItem(customPlanKey, JSON.stringify({
       updatedAt: new Date().toISOString(),
       workout: customExercises
@@ -330,6 +483,38 @@
         <button type="button" class="builder-remove" data-index="${index}" aria-label="Remove ${escapeCustomText(exercise.name)}">Remove</button>
       </div>
     `).join('') : '<div class="builder-empty">Add the first exercise to start building.</div>';
+  }
+
+  function normalizeSavedWorkout(workout) {
+    if (!workout?.name || !Array.isArray(workout.workout) || !workout.workout.length) return null;
+    return {
+      id: workout.id || nextSavedWorkoutId(),
+      name: String(workout.name).trim(),
+      category: String(workout.category || 'Custom').trim() || 'Custom',
+      createdAt: workout.createdAt || new Date().toISOString(),
+      updatedAt: workout.updatedAt || new Date().toISOString(),
+      workout: workout.workout
+    };
+  }
+
+  function exportSavedWorkouts() {
+    const payload = {
+      app: 'Liftin',
+      type: 'custom-workout-layouts',
+      codexImportMode: 'normal-workout-page',
+      note: 'When this file is given to Codex, promote these layouts into normal checked-in workout pages instead of local saved custom workouts.',
+      exportedAt: new Date().toISOString(),
+      workouts: savedWorkoutStore
+    };
+    const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = `liftin-workout-export-${new Date().toISOString().slice(0, 10)}.json`;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    URL.revokeObjectURL(link.href);
+    customNote.textContent = `Exported ${savedWorkoutStore.length} saved workout${savedWorkoutStore.length === 1 ? '' : 's'}.`;
   }
 
   customForm.addEventListener('submit', event => {
@@ -378,7 +563,7 @@
     if (customExercises.length) {
       saveCustomPlan();
     } else {
-      localStorage.removeItem(customPlanKey);
+      if (!selectedSavedWorkout) localStorage.removeItem(customPlanKey);
       localStorage.removeItem(customStateKey);
       document.body.classList.remove('custom-ready');
       document.body.classList.add('custom-empty');
@@ -388,11 +573,98 @@
 
   clearCustom.addEventListener('click', () => {
     customExercises = [];
-    localStorage.removeItem(customPlanKey);
+    if (!selectedSavedWorkout) localStorage.removeItem(customPlanKey);
     localStorage.removeItem(customStateKey);
     location.reload();
   });
 
+  savedWorkoutCategory.addEventListener('change', () => {
+    newWorkoutCategory.disabled = savedWorkoutCategory.value !== '__new';
+    if (savedWorkoutCategory.value !== '__new') {
+      newWorkoutCategory.value = '';
+    }
+  });
+
+  saveCustomWorkoutForm.addEventListener('submit', event => {
+    event.preventDefault();
+    const name = savedWorkoutName.value.trim();
+    const category = savedWorkoutCategory.value === '__new'
+      ? newWorkoutCategory.value.trim()
+      : savedWorkoutCategory.value.trim();
+    if (!customExercises.length) {
+      customNote.textContent = 'Add at least one exercise before saving.';
+      return;
+    }
+    if (!name || !category) {
+      customNote.textContent = 'Name and category are required.';
+      return;
+    }
+    const existingIndex = activeSavedWorkoutId
+      ? savedWorkoutStore.findIndex(workout => workout.id === activeSavedWorkoutId)
+      : -1;
+    const existing = existingIndex >= 0 ? savedWorkoutStore[existingIndex] : null;
+    const savedWorkout = {
+      id: existing?.id || nextSavedWorkoutId(),
+      name,
+      category,
+      createdAt: existing?.createdAt || new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      workout: customExercises
+    };
+    if (existingIndex >= 0) {
+      savedWorkoutStore[existingIndex] = savedWorkout;
+    } else {
+      savedWorkoutStore.push(savedWorkout);
+    }
+    activeSavedWorkoutId = savedWorkout.id;
+    const addedExercises = mergeWorkoutExercisesIntoRandomPool([savedWorkout]);
+    saveSavedWorkoutStore();
+    renderSavedCategoryOptions();
+    customNote.textContent = `Saved ${name} to ${category}${addedExercises ? ` · added ${addedExercises} random option${addedExercises === 1 ? '' : 's'}` : ''}.`;
+  });
+
+  exportCustomLayouts.addEventListener('click', () => {
+    if (!savedWorkoutStore.length) {
+      customNote.textContent = 'No saved workouts to export yet.';
+      return;
+    }
+    exportSavedWorkouts();
+  });
+
+  deleteSavedWorkout.addEventListener('click', () => {
+    if (!activeSavedWorkoutId) return;
+    savedWorkoutStore = savedWorkoutStore.filter(workout => workout.id !== activeSavedWorkoutId);
+    saveSavedWorkoutStore();
+    localStorage.removeItem(customStateKey);
+    customNote.textContent = 'Removed from home screen.';
+    window.location.href = '../index.html';
+  });
+
+  if (selectedSavedWorkout) {
+    document.title = selectedSavedWorkout.name;
+    customWorkoutTitle.textContent = selectedSavedWorkout.name;
+    const cancelDeleteReveal = () => {
+      if (deleteRevealTimer) {
+        clearTimeout(deleteRevealTimer);
+        deleteRevealTimer = null;
+      }
+    };
+    const startDeleteReveal = () => {
+      cancelDeleteReveal();
+      deleteRevealTimer = setTimeout(() => {
+        deleteSavedWorkout.hidden = false;
+        customNote.textContent = 'Delete unlocked.';
+      }, 700);
+    };
+    builderSave.addEventListener('pointerdown', startDeleteReveal);
+    builderSave.addEventListener('pointerup', cancelDeleteReveal);
+    builderSave.addEventListener('pointerleave', cancelDeleteReveal);
+    builderSave.addEventListener('pointercancel', cancelDeleteReveal);
+  }
+  savedWorkoutName.value = selectedSavedWorkout?.name || '';
+  hydrateCustomRandomExercisePool();
+  renderSavedCategoryOptions();
+  newWorkoutCategory.disabled = savedWorkoutCategory.value !== '__new';
   renderCustomBuilder();
 </script>
 <script>

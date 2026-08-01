@@ -659,6 +659,34 @@
     text-transform: uppercase;
     white-space: nowrap;
   }
+  .builder-save {
+    border-top: 1px solid var(--line);
+    display: grid;
+    gap: 12px;
+    margin-top: 2px;
+    padding-top: 14px;
+  }
+  .builder-save-head h3 {
+    font-size: 18px;
+    font-weight: 800;
+    letter-spacing: -.2px;
+    line-height: 1;
+    margin-top: 5px;
+    text-transform: uppercase;
+  }
+  .builder-save-form {
+    display: grid;
+    gap: 10px;
+    grid-template-columns: 1fr 1fr;
+  }
+  .builder-backup-actions {
+    display: grid;
+    gap: 10px;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  }
+  .builder-backup-actions .ghost {
+    min-height: 42px;
+  }
   .custom-empty .workout-clock,
   .custom-empty .current,
   .custom-empty .section-label,

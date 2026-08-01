@@ -389,16 +389,19 @@ const config = window.liftWorkoutConfig;
   }
 
   function setTarget(exercise, setIndex) {
+    if (!exercise) return null;
     return Array.isArray(exercise.setTargets) ? exercise.setTargets[setIndex] : null;
   }
 
   function targetText(exercise, setIndex = null) {
+    if (!exercise) return '';
     const target = setIndex === null ? null : setTarget(exercise, setIndex);
     if (target) return target.reps;
     return exercise.duration ? exercise.reps : `${exercise.reps} reps`;
   }
 
   function timedSetSeconds(exercise, setIndex = null) {
+    if (!exercise) return null;
     return setTarget(exercise, setIndex)?.duration || exercise.duration || null;
   }
 

@@ -75,10 +75,70 @@
     flex: 1;
     height: 1px;
   }
+  .home-section {
+    display: grid;
+    gap: 9px;
+    margin: 0 18px 16px;
+  }
+  .home-section-head {
+    align-items: center;
+    appearance: none;
+    background: rgba(23, 25, 27, .78);
+    border: 1px solid rgba(55, 59, 64, .78);
+    border-radius: 11px;
+    color: var(--muted);
+    display: grid;
+    font: inherit;
+    gap: 8px;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    min-height: 42px;
+    padding: 9px 10px;
+    text-align: left;
+    width: 100%;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .home-section-head:active {
+    filter: brightness(1.12);
+  }
+  .home-section-head strong {
+    color: var(--accent-2);
+    font-family: 'Roboto Mono', monospace;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 2.4px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+  .section-chevron {
+    color: var(--accent);
+    font-family: 'Roboto Mono', monospace;
+    font-size: 14px;
+    font-weight: 800;
+    line-height: 1;
+    transform: translateY(-1px);
+  }
+  .section-count {
+    border: 1px solid rgba(150, 146, 139, .22);
+    border-radius: 999px;
+    color: var(--muted);
+    font-family: 'Roboto Mono', monospace;
+    font-size: 10px;
+    font-weight: 700;
+    min-width: 25px;
+    padding: 4px 7px;
+    text-align: center;
+  }
+  .home-section.is-collapsed .workout-list {
+    display: none;
+  }
+  .home-section.is-collapsed .section-chevron {
+    transform: rotate(-90deg);
+  }
   .workout-list {
     display: grid;
     gap: 10px;
-    margin: 0 18px;
   }
   .workout-card {
     align-items: center;
@@ -114,6 +174,16 @@
     letter-spacing: -.4px;
     line-height: 1.1;
     text-transform: uppercase;
+    overflow-wrap: anywhere;
+  }
+  .workout-meta {
+    color: var(--muted);
+    font-family: 'Roboto Mono', monospace;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 1.6px;
+    margin-top: 7px;
+    text-transform: uppercase;
   }
   @media (min-width: 760px) {
     body {
@@ -127,9 +197,12 @@
       padding: 30px 32px;
     }
     h1 { font-size: 68px; }
+    .home-section {
+      margin-left: 0;
+      margin-right: 0;
+    }
     .workout-list {
       grid-template-columns: repeat(2, minmax(0, 1fr));
-      margin: 0;
     }
     .section-label { margin-left: 0; margin-right: 0; }
   }
@@ -141,45 +214,145 @@
   <h1>Lift<span>in&#39;</span></h1>
 </header>
 
-<div class="section-label">Workouts</div>
-<main class="workout-list">
-  <a class="workout-card" href="./workouts/chest-tri.html">
-    <div class="workout-copy">
-      <div class="workout-title">Chest &amp; Tri</div>
-    </div>
-  </a>
-  <a class="workout-card" href="./workouts/game-day-chest-tri.html">
-    <div class="workout-copy">
-      <div class="workout-title">Game Day Chest &amp; Tri</div>
-    </div>
-  </a>
-  <a class="workout-card" href="./workouts/chest-arms.html">
-    <div class="workout-copy">
-      <div class="workout-title">Chest &amp; Arms</div>
-    </div>
-  </a>
-  <a class="workout-card" href="./workouts/upper-body.html">
-    <div class="workout-copy">
-      <div class="workout-title">Upper Body</div>
-    </div>
-  </a>
-  <a class="workout-card" href="./workouts/full-body.html">
-    <div class="workout-copy">
-      <div class="workout-title">Full Body</div>
-    </div>
-  </a>
-  <a class="workout-card" href="./workouts/legs-arms.html">
-    <div class="workout-copy">
-      <div class="workout-title">Legs &amp; Arms</div>
-    </div>
-  </a>
-  <a class="workout-card custom-workout" href="./workouts/custom.html">
-    <div class="workout-copy">
-      <div class="workout-title">Custom Workout</div>
-    </div>
-  </a>
-</main>
+<main id="homeWorkoutSections" aria-label="Workouts"></main>
 <script>
+  const savedCustomWorkoutsKey = 'standalone-lift-saved-custom-workouts';
+  const homeCollapsedKey = 'standalone-lift-home-collapsed-categories';
+  const baseWorkoutSections = [
+    {
+      id: 'push',
+      title: 'Push',
+      workouts: [
+        { title: 'Chest & Tri', href: './workouts/chest-tri.html' },
+        { title: 'Game Day Chest & Tri', href: './workouts/game-day-chest-tri.html' },
+        { title: 'Chest & Arms', href: './workouts/chest-arms.html' }
+      ]
+    },
+    {
+      id: 'upper-full',
+      title: 'Upper / Full',
+      workouts: [
+        { title: 'Upper Body', href: './workouts/upper-body.html' },
+        { title: 'Full Body', href: './workouts/full-body.html' }
+      ]
+    },
+    {
+      id: 'legs-mixed',
+      title: 'Legs / Mixed',
+      workouts: [
+        { title: 'Legs & Arms', href: './workouts/legs-arms.html' }
+      ]
+    },
+    {
+      id: 'builder',
+      title: 'Builder',
+      workouts: [
+        { title: 'Custom Workout', href: './workouts/custom.html', custom: true, meta: 'Build on the fly' }
+      ]
+    }
+  ];
+
+  function escapeHomeText(value) {
+    return String(value).replace(/[&<>"']/g, character => ({
+      '&': '&amp;',
+      '<': '&lt;',
+      '>': '&gt;',
+      '"': '&quot;',
+      "'": '&#39;'
+    }[character]));
+  }
+
+  function categoryId(category) {
+    return `category-${String(category).trim().toLowerCase().replace(/[^a-z0-9]+/g, '-') || 'custom'}`;
+  }
+
+  function loadSavedCustomWorkouts() {
+    try {
+      const saved = JSON.parse(localStorage.getItem(savedCustomWorkoutsKey) || '[]');
+      return Array.isArray(saved) ? saved.filter(workout => workout?.id && workout?.name && Array.isArray(workout.workout)) : [];
+    } catch (error) {
+      return [];
+    }
+  }
+
+  function loadCollapsedSections() {
+    try {
+      const saved = JSON.parse(localStorage.getItem(homeCollapsedKey) || '[]');
+      return new Set(Array.isArray(saved) ? saved : []);
+    } catch (error) {
+      return new Set();
+    }
+  }
+
+  function saveCollapsedSections(collapsed) {
+    localStorage.setItem(homeCollapsedKey, JSON.stringify([...collapsed]));
+  }
+
+  function renderHomeSections() {
+    const customWorkouts = loadSavedCustomWorkouts();
+    const sections = baseWorkoutSections.map(section => ({
+      ...section,
+      workouts: [...section.workouts]
+    }));
+    customWorkouts.forEach(workout => {
+      const category = workout.category || 'Custom';
+      const id = categoryId(category);
+      let section = sections.find(item => item.id === id || item.title.toLowerCase() === category.toLowerCase());
+      if (!section) {
+        section = { id, title: category, workouts: [] };
+        sections.splice(Math.max(0, sections.length - 1), 0, section);
+      }
+      section.workouts.push({
+        title: workout.name,
+        href: `./workouts/custom.html?saved=${encodeURIComponent(workout.id)}`,
+        meta: `${workout.workout.length} exercise${workout.workout.length === 1 ? '' : 's'}`
+      });
+    });
+
+    const collapsed = loadCollapsedSections();
+    const sectionRoot = document.getElementById('homeWorkoutSections');
+    sectionRoot.innerHTML = sections.filter(section => section.workouts.length).map(section => {
+      const isCollapsed = collapsed.has(section.id);
+      return `
+        <section class="home-section ${isCollapsed ? 'is-collapsed' : ''}" data-section="${escapeHomeText(section.id)}">
+          <button type="button" class="home-section-head" aria-expanded="${isCollapsed ? 'false' : 'true'}">
+            <span class="section-chevron">⌄</span>
+            <strong>${escapeHomeText(section.title)}</strong>
+            <span class="section-count">${section.workouts.length}</span>
+          </button>
+          <div class="workout-list">
+            ${section.workouts.map(workout => `
+              <a class="workout-card ${workout.custom ? 'custom-workout' : ''}" href="${escapeHomeText(workout.href)}">
+                <div class="workout-copy">
+                  <div class="workout-title">${escapeHomeText(workout.title)}</div>
+                  ${workout.meta ? `<div class="workout-meta">${escapeHomeText(workout.meta)}</div>` : ''}
+                </div>
+              </a>
+            `).join('')}
+          </div>
+        </section>
+      `;
+    }).join('');
+
+    sectionRoot.querySelectorAll('.home-section-head').forEach(button => {
+      button.addEventListener('click', () => {
+        const section = button.closest('.home-section');
+        const id = section.dataset.section;
+        section.classList.toggle('is-collapsed');
+        const isCollapsed = section.classList.contains('is-collapsed');
+        button.setAttribute('aria-expanded', isCollapsed ? 'false' : 'true');
+        if (isCollapsed) {
+          collapsed.add(id);
+        } else {
+          collapsed.delete(id);
+        }
+        saveCollapsedSections(collapsed);
+      });
+    });
+  }
+
+  renderHomeSections();
+
   if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js');
   }
