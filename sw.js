@@ -1,4 +1,4 @@
-const CACHE_NAME = 'liftin-v26';
+const CACHE_NAME = 'liftin-v27';
 
 const PAGES = [
   './',
@@ -47,5 +47,33 @@ self.addEventListener('fetch', event => {
 
   event.respondWith(
     caches.match(event.request).then(cached => cached || fetch(event.request))
+  );
+});
+
+self.addEventListener('message', event => {
+  if (event.data?.type !== 'liftin:timer-complete') return;
+  event.waitUntil(
+    self.registration.showNotification(event.data.title || 'Liftin timer complete', {
+      body: event.data.body || 'Timer is up',
+      icon: './assets/icons/icon-192.png',
+      badge: './assets/icons/favicon.png',
+      tag: 'liftin-timer',
+      renotify: true,
+      data: {
+        url: event.data.url || './'
+      }
+    })
+  );
+});
+
+self.addEventListener('notificationclick', event => {
+  event.notification.close();
+  const targetUrl = new URL(event.notification.data?.url || './', self.registration.scope).href;
+  event.waitUntil(
+    self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then(clients => {
+      const existing = clients.find(client => client.url === targetUrl);
+      if (existing) return existing.focus();
+      return self.clients.openWindow(targetUrl);
+    })
   );
 });

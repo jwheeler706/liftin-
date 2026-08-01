@@ -104,6 +104,7 @@ const config = window.liftWorkoutConfig;
   const exerciseList = document.getElementById('exerciseList');
   const completeWorkout = document.getElementById('completeWorkout');
   const exportWorkoutData = document.getElementById('exportWorkoutData');
+  const notificationButton = document.createElement('button');
   const completeEditor = document.getElementById('completeEditor');
   const durationHours = document.getElementById('durationHours');
   const durationMinutes = document.getElementById('durationMinutes');
@@ -432,6 +433,51 @@ const config = window.liftWorkoutConfig;
     focusTimerTime.textContent = formatTime(timerSeconds);
   }
 
+  function notificationsSupported() {
+    return 'Notification' in window && 'serviceWorker' in navigator;
+  }
+
+  function notificationPermission() {
+    return notificationsSupported() ? Notification.permission : 'unsupported';
+  }
+
+  function updateNotificationButton() {
+    if (!notificationsSupported()) return;
+    notificationButton.textContent = notificationPermission() === 'granted' ? 'Alerts On' : 'Enable Alerts';
+    notificationButton.disabled = notificationPermission() === 'denied';
+  }
+
+  async function requestNotifications() {
+    if (!notificationsSupported()) return;
+    const permission = await Notification.requestPermission();
+    updateNotificationButton();
+    saveNote.textContent = permission === 'granted' ? 'Timer alerts enabled' : 'Timer alerts not enabled';
+  }
+
+  async function showTimerNotification(activeTimer) {
+    if (document.visibilityState === 'visible' || notificationPermission() !== 'granted') return;
+    const exercise = workout[activeTimer.exerciseIndex];
+    const title = activeTimer.kind === 'set' ? 'Set timer complete' : 'Rest timer complete';
+    const body = activeTimer.kind === 'set'
+      ? `${exercise?.name || 'Timed set'} is done`
+      : `Next up: ${findNextOpen() ? effectiveExercise(workout[findNextOpen().exerciseIndex], findNextOpen().exerciseIndex).name : 'workout complete'}`;
+    const payload = {
+      type: 'liftin:timer-complete',
+      title,
+      body,
+      url: location.href
+    };
+    if (navigator.serviceWorker.controller) {
+      navigator.serviceWorker.controller.postMessage(payload);
+      return;
+    }
+    new Notification(title, {
+      body,
+      icon: '../assets/icons/icon-192.png',
+      badge: '../assets/icons/favicon.png'
+    });
+  }
+
   function remainingTimerSeconds() {
     if (!state.activeTimer?.endsAt) return timerSeconds;
     const endsAt = new Date(state.activeTimer.endsAt).getTime();
@@ -444,6 +490,7 @@ const config = window.liftWorkoutConfig;
     state.activeTimer = null;
     saveState();
     renderTimer(0);
+    showTimerNotification(activeTimer);
     if (activeTimer.kind === 'set') {
       completeSetWithoutRest(activeTimer.exerciseIndex, activeTimer.setIndex);
       enterFocusMode();
@@ -1026,6 +1073,14 @@ const config = window.liftWorkoutConfig;
   focusSwitchEnder.addEventListener('click', () => {
     if (state.currentExercise !== null) switchEnder(state.currentExercise);
   });
+
+  if (notificationsSupported()) {
+    notificationButton.type = 'button';
+    notificationButton.className = 'ghost notification-toggle';
+    notificationButton.addEventListener('click', requestNotifications);
+    exportWorkoutData.insertAdjacentElement('afterend', notificationButton);
+    updateNotificationButton();
+  }
 
   document.addEventListener('visibilitychange', () => {
     if (document.visibilityState === 'visible') {

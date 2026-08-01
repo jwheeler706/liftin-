@@ -196,6 +196,10 @@
     font-size: 18px;
     min-height: 56px;
   }
+  .notification-toggle {
+    grid-column: 1 / -1;
+    min-height: 46px;
+  }
   .complete-editor {
     background: var(--surface);
     border: 1px solid var(--line);
