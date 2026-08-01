@@ -99,9 +99,8 @@
       </select>
     </label>
     <button type="submit" class="primary builder-add">Add Exercise</button>
-  </form>
-  <div class="builder-random">
-    <label class="builder-field" for="randomExerciseCategory">Random
+    <div class="builder-random">
+      <label class="builder-field" for="randomExerciseCategory">Random
       <select id="randomExerciseCategory">
         <option value="Chest">Chest</option>
         <option value="Back">Back</option>
@@ -114,35 +113,12 @@
         <option value="Cardio">Cardio</option>
         <option value="Warm Up">Warm Up</option>
       </select>
-    </label>
-    <button type="button" class="ghost builder-random-add" id="addRandomExercise">Add Random</button>
-  </div>
+      </label>
+      <button type="button" class="ghost builder-random-add" id="addRandomExercise">Add Random</button>
+    </div>
+  </form>
   <div class="builder-list" id="customBuilderList"></div>
   <div class="builder-note" id="customBuilderNote"></div>
-  <div class="builder-save">
-    <div class="builder-save-head">
-      <div>
-        <div class="label">Home Screen</div>
-        <h3>Save Workout</h3>
-      </div>
-    </div>
-    <form class="builder-save-form" id="saveCustomWorkoutForm">
-      <label class="builder-field builder-field-wide" for="savedWorkoutName">Workout Name
-        <input id="savedWorkoutName" autocomplete="off" placeholder="Hotel Arms">
-      </label>
-      <label class="builder-field" for="savedWorkoutCategory">Category
-        <select id="savedWorkoutCategory"></select>
-      </label>
-      <label class="builder-field" for="newWorkoutCategory">New Category
-        <input id="newWorkoutCategory" autocomplete="off" placeholder="Pull">
-      </label>
-      <button type="submit" class="primary builder-add" id="saveCustomWorkoutHome">Save</button>
-    </form>
-    <div class="builder-backup-actions">
-      <button type="button" class="ghost" id="exportCustomLayouts">Export</button>
-      <button type="button" class="ghost" id="deleteSavedWorkout" hidden>Delete Saved</button>
-    </div>
-  </div>
 </section>
 
 <section class="current" aria-live="polite">
@@ -163,6 +139,26 @@
 
 <div class="section-label">Workout</div>
 <main class="exercise-list" id="exerciseList"></main>
+
+<section class="builder-save" id="builderSavePanel">
+  <div class="builder-save-actions">
+    <button type="button" class="primary" id="showSaveWorkoutOptions">Save</button>
+    <button type="button" class="ghost" id="exportCustomLayouts">Export</button>
+    <button type="button" class="ghost" id="deleteSavedWorkout" hidden>Delete Saved</button>
+  </div>
+  <form class="builder-save-form" id="saveCustomWorkoutForm" hidden>
+    <label class="builder-field builder-field-wide" for="savedWorkoutName">Workout Name
+      <input id="savedWorkoutName" autocomplete="off" placeholder="Hotel Arms">
+    </label>
+    <label class="builder-field" for="savedWorkoutCategory">Category
+      <select id="savedWorkoutCategory"></select>
+    </label>
+    <label class="builder-field" for="newWorkoutCategory">New Category
+      <input id="newWorkoutCategory" autocomplete="off" placeholder="Pull">
+    </label>
+    <button type="submit" class="primary builder-add" id="saveCustomWorkoutHome">Save</button>
+  </form>
+</section>
 
 <div class="complete-panel">
   <div class="complete-actions">
@@ -254,9 +250,10 @@
   const clearCustom = document.getElementById('clearCustomWorkout');
   const randomCategory = document.getElementById('randomExerciseCategory');
   const addRandom = document.getElementById('addRandomExercise');
-  const builderSave = document.querySelector('.builder-save');
+  const builderSave = document.getElementById('builderSavePanel');
   const customWorkoutTitle = document.getElementById('customWorkoutTitle');
   const saveCustomWorkoutForm = document.getElementById('saveCustomWorkoutForm');
+  const showSaveWorkoutOptions = document.getElementById('showSaveWorkoutOptions');
   const savedWorkoutName = document.getElementById('savedWorkoutName');
   const savedWorkoutCategory = document.getElementById('savedWorkoutCategory');
   const newWorkoutCategory = document.getElementById('newWorkoutCategory');
@@ -578,6 +575,13 @@
     location.reload();
   });
 
+  showSaveWorkoutOptions.addEventListener('click', () => {
+    saveCustomWorkoutForm.hidden = !saveCustomWorkoutForm.hidden;
+    if (!saveCustomWorkoutForm.hidden) {
+      savedWorkoutName.focus();
+    }
+  });
+
   savedWorkoutCategory.addEventListener('change', () => {
     newWorkoutCategory.disabled = savedWorkoutCategory.value !== '__new';
     if (savedWorkoutCategory.value !== '__new') {
@@ -620,6 +624,7 @@
     const addedExercises = mergeWorkoutExercisesIntoRandomPool([savedWorkout]);
     saveSavedWorkoutStore();
     renderSavedCategoryOptions();
+    saveCustomWorkoutForm.hidden = true;
     customNote.textContent = `Saved ${name} to ${category}${addedExercises ? ` · added ${addedExercises} random option${addedExercises === 1 ? '' : 's'}` : ''}.`;
   });
 

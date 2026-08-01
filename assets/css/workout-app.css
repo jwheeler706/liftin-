@@ -607,7 +607,9 @@
     align-items: end;
     display: grid;
     gap: 10px;
+    grid-column: 1 / -1;
     grid-template-columns: minmax(0, 1fr) auto;
+    margin-top: 2px;
   }
   .builder-random-add {
     border-color: rgba(123, 207, 143, .34);
@@ -660,37 +662,33 @@
     white-space: nowrap;
   }
   .builder-save {
-    border-top: 1px solid var(--line);
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 16px;
     display: grid;
-    gap: 12px;
-    margin-top: 2px;
-    padding-top: 14px;
-  }
-  .builder-save-head h3 {
-    font-size: 18px;
-    font-weight: 800;
-    letter-spacing: -.2px;
-    line-height: 1;
-    margin-top: 5px;
-    text-transform: uppercase;
+    gap: 10px;
+    margin: 12px 18px 0;
+    padding: 14px;
   }
   .builder-save-form {
     display: grid;
     gap: 10px;
     grid-template-columns: 1fr 1fr;
   }
-  .builder-backup-actions {
+  .builder-save-actions {
     display: grid;
     gap: 10px;
     grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
   }
-  .builder-backup-actions .ghost {
+  .builder-save-actions .primary,
+  .builder-save-actions .ghost {
     min-height: 42px;
   }
   .custom-empty .workout-clock,
   .custom-empty .current,
   .custom-empty .section-label,
   .custom-empty .exercise-list,
+  .custom-empty .builder-save,
   .custom-empty .complete-panel {
     display: none;
   }
