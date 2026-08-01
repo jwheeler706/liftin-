@@ -57,64 +57,80 @@
     <button type="button" class="ghost" id="clearCustomWorkout">Clear</button>
   </div>
   <form class="builder-form" id="customExerciseForm">
-    <label class="builder-field builder-field-wide" for="customExerciseName">Exercise
-      <input id="customExerciseName" autocomplete="off" placeholder="Bench press">
-    </label>
-    <label class="builder-field" for="customExerciseGroup">Group
-      <select id="customExerciseGroup">
-        <option>Warm Up</option>
-        <option selected>Strength</option>
-        <option>Chest</option>
-        <option>Back</option>
-        <option>Legs</option>
-        <option>Shoulders</option>
-        <option>Arms</option>
-        <option>Biceps</option>
-        <option>Triceps</option>
-        <option>Core</option>
-        <option>Cardio</option>
-      </select>
-    </label>
-    <label class="builder-field" for="customExerciseSets">Sets
-      <input id="customExerciseSets" type="number" inputmode="numeric" min="1" max="10" step="1" value="3">
-    </label>
-    <label class="builder-field" for="customExerciseReps">Target
-      <input id="customExerciseReps" autocomplete="off" placeholder="8-10">
-    </label>
-    <label class="builder-field" for="customExerciseRest">Rest
-      <select id="customExerciseRest">
-        <option value="0">0s</option>
-        <option value="45">45s</option>
-        <option value="60" selected>60s</option>
-        <option value="75">75s</option>
-        <option value="90">90s</option>
-        <option value="120">120s</option>
-      </select>
-    </label>
-    <label class="builder-field builder-field-wide" for="customExerciseTrack">Track
-      <select id="customExerciseTrack">
-        <option value="weight" selected>Reps + weight</option>
-        <option value="reps">Reps only</option>
-        <option value="none">No inputs</option>
-      </select>
-    </label>
-    <button type="submit" class="primary builder-add">Add Exercise</button>
-    <div class="builder-random">
-      <label class="builder-field" for="randomExerciseCategory">Random
-      <select id="randomExerciseCategory">
-        <option value="Chest">Chest</option>
-        <option value="Back">Back</option>
-        <option value="Legs">Legs</option>
-        <option value="Shoulders">Shoulders</option>
-        <option value="Biceps">Biceps</option>
-        <option value="Triceps">Triceps</option>
-        <option value="Arms">Arms</option>
-        <option value="Core">Core</option>
-        <option value="Cardio">Cardio</option>
-        <option value="Warm Up">Warm Up</option>
-      </select>
+    <div class="builder-mode" role="group" aria-label="Exercise add mode">
+      <button type="button" class="is-active" data-add-mode="write">Write</button>
+      <button type="button" data-add-mode="pick">Pick</button>
+      <button type="button" data-add-mode="shuffle">Shuffle</button>
+    </div>
+    <div class="builder-mode-panel" data-mode-panel="write">
+      <label class="builder-field builder-field-wide" for="customExerciseName">Exercise
+        <input id="customExerciseName" autocomplete="off" placeholder="Bench press">
       </label>
-      <button type="button" class="ghost builder-random-add" id="addRandomExercise">Add Random</button>
+      <label class="builder-field" for="customExerciseGroup">Group
+        <select id="customExerciseGroup">
+          <option>Warm Up</option>
+          <option selected>Strength</option>
+          <option>Chest</option>
+          <option>Back</option>
+          <option>Legs</option>
+          <option>Shoulders</option>
+          <option>Arms</option>
+          <option>Biceps</option>
+          <option>Triceps</option>
+          <option>Core</option>
+          <option>Cardio</option>
+        </select>
+      </label>
+      <label class="builder-field" for="customExerciseSets">Sets
+        <input id="customExerciseSets" type="number" inputmode="numeric" min="1" max="10" step="1" value="3">
+      </label>
+      <label class="builder-field" for="customExerciseReps">Target
+        <input id="customExerciseReps" autocomplete="off" placeholder="8-10">
+      </label>
+      <label class="builder-field" for="customExerciseRest">Rest
+        <select id="customExerciseRest">
+          <option value="0">0s</option>
+          <option value="45">45s</option>
+          <option value="60" selected>60s</option>
+          <option value="75">75s</option>
+          <option value="90">90s</option>
+          <option value="120">120s</option>
+        </select>
+      </label>
+      <label class="builder-field builder-field-wide" for="customExerciseTrack">Track
+        <select id="customExerciseTrack">
+          <option value="weight" selected>Reps + weight</option>
+          <option value="reps">Reps only</option>
+          <option value="none">No inputs</option>
+        </select>
+      </label>
+      <button type="submit" class="primary builder-add">Add</button>
+    </div>
+    <div class="builder-mode-panel is-hidden" data-mode-panel="pick">
+      <label class="builder-field" for="listExerciseCategory">Group
+        <select id="listExerciseCategory"></select>
+      </label>
+      <label class="builder-field" for="listExerciseName">Exercise
+        <select id="listExerciseName"></select>
+      </label>
+      <button type="button" class="primary builder-add" id="addListedExercise">Add</button>
+    </div>
+    <div class="builder-mode-panel is-hidden" data-mode-panel="shuffle">
+      <label class="builder-field" for="randomExerciseCategory">Group
+        <select id="randomExerciseCategory">
+          <option value="Chest">Chest</option>
+          <option value="Back">Back</option>
+          <option value="Legs">Legs</option>
+          <option value="Shoulders">Shoulders</option>
+          <option value="Biceps">Biceps</option>
+          <option value="Triceps">Triceps</option>
+          <option value="Arms">Arms</option>
+          <option value="Core">Core</option>
+          <option value="Cardio">Cardio</option>
+          <option value="Warm Up">Warm Up</option>
+        </select>
+      </label>
+      <button type="button" class="primary builder-add" id="addRandomExercise">Add</button>
     </div>
   </form>
   <div class="builder-list" id="customBuilderList"></div>
@@ -248,6 +264,11 @@
   const customRest = document.getElementById('customExerciseRest');
   const customTrack = document.getElementById('customExerciseTrack');
   const clearCustom = document.getElementById('clearCustomWorkout');
+  const addModeButtons = document.querySelectorAll('[data-add-mode]');
+  const addModePanels = document.querySelectorAll('[data-mode-panel]');
+  const listCategory = document.getElementById('listExerciseCategory');
+  const listExerciseName = document.getElementById('listExerciseName');
+  const addListed = document.getElementById('addListedExercise');
   const randomCategory = document.getElementById('randomExerciseCategory');
   const addRandom = document.getElementById('addRandomExercise');
   const builderSave = document.getElementById('builderSavePanel');
@@ -354,6 +375,10 @@
     return String(value || '').trim().toLowerCase();
   }
 
+  function cloneExercise(exercise) {
+    return JSON.parse(JSON.stringify(exercise));
+  }
+
   function normalizeRandomExercise(exercise) {
     if (!exercise?.name) return null;
     const group = String(exercise.group || 'Strength').trim() || 'Strength';
@@ -378,6 +403,22 @@
     randomCategory.appendChild(option);
   }
 
+  function ensureListCategoryOption(category) {
+    if ([...listCategory.options].some(option => option.value.toLowerCase() === category.toLowerCase())) return;
+    const option = document.createElement('option');
+    option.value = category;
+    option.textContent = category;
+    listCategory.appendChild(option);
+  }
+
+  function syncPoolCategoryOptions() {
+    Object.keys(randomExercisePool).forEach(category => {
+      ensureRandomCategoryOption(category);
+      ensureListCategoryOption(category);
+    });
+    renderListExercises();
+  }
+
   function saveCustomRandomExercisePool() {
     localStorage.setItem(customRandomExercisePoolKey, JSON.stringify(customRandomExercisePool));
   }
@@ -388,6 +429,7 @@
     const category = normalized.group;
     randomExercisePool[category] = randomExercisePool[category] || [];
     ensureRandomCategoryOption(category);
+    ensureListCategoryOption(category);
     const exists = randomExercisePool[category].some(option => exercisePoolName(option.name) === exercisePoolName(normalized.name));
     if (exists) return false;
     randomExercisePool[category].push(normalized);
@@ -464,7 +506,21 @@
     if (!options.length) return null;
     const unused = options.filter(option => !customExercises.some(exercise => exercise.name === option.name));
     const candidates = unused.length ? unused : options;
-    return { ...candidates[Math.floor(Math.random() * candidates.length)] };
+    return cloneExercise(candidates[Math.floor(Math.random() * candidates.length)]);
+  }
+
+  function listedExercise(category, name) {
+    const options = randomExercisePool[category] || [];
+    const exercise = options.find(option => option.name === name);
+    return exercise ? cloneExercise(exercise) : null;
+  }
+
+  function renderListExercises() {
+    const options = randomExercisePool[listCategory.value] || [];
+    listExerciseName.innerHTML = options.map(exercise => (
+      `<option value="${escapeCustomText(exercise.name)}">${escapeCustomText(exercise.name)}</option>`
+    )).join('');
+    addListed.disabled = options.length === 0;
   }
 
   function renderCustomBuilder() {
@@ -537,6 +593,29 @@
     customRest.value = '60';
     customTrack.value = 'weight';
     customName.focus();
+  });
+
+  addModeButtons.forEach(button => {
+    button.addEventListener('click', () => {
+      addModeButtons.forEach(modeButton => modeButton.classList.toggle('is-active', modeButton === button));
+      addModePanels.forEach(panel => {
+        panel.classList.toggle('is-hidden', panel.dataset.modePanel !== button.dataset.addMode);
+      });
+      if (button.dataset.addMode === 'write') customName.focus();
+      if (button.dataset.addMode === 'pick') listExerciseName.focus();
+      if (button.dataset.addMode === 'shuffle') randomCategory.focus();
+    });
+  });
+
+  listCategory.addEventListener('change', renderListExercises);
+
+  addListed.addEventListener('click', () => {
+    const exercise = listedExercise(listCategory.value, listExerciseName.value);
+    if (!exercise) {
+      customNote.textContent = 'No exercise selected.';
+      return;
+    }
+    addCustomExercise(exercise);
   });
 
   addRandom.addEventListener('click', () => {
@@ -668,6 +747,7 @@
   }
   savedWorkoutName.value = selectedSavedWorkout?.name || '';
   hydrateCustomRandomExercisePool();
+  syncPoolCategoryOptions();
   renderSavedCategoryOptions();
   newWorkoutCategory.disabled = savedWorkoutCategory.value !== '__new';
   renderCustomBuilder();
