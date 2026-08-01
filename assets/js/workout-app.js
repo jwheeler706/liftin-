@@ -383,6 +383,7 @@ const config = window.liftWorkoutConfig;
   }
 
   function restSeconds(exercise) {
+    if (!exercise) return 0;
     return testRestSeconds || exercise.rest;
   }
 
@@ -768,6 +769,67 @@ const config = window.liftWorkoutConfig;
     setTimer(displayTimerSeconds(workout[exerciseIndex], 0));
     render();
   }
+
+  function addWorkoutExercise(exercise) {
+    const normalized = {
+      group: exercise.group || 'Strength',
+      name: exercise.name,
+      sets: Math.max(1, Math.min(10, Number(exercise.sets) || 1)),
+      reps: exercise.reps || 'Target',
+      rest: Math.max(0, Number(exercise.rest) || 0),
+      track: exercise.track || 'weight'
+    };
+    baseWorkout.push(normalized);
+    workout.push(normalized);
+    if (state.currentExercise === null || !workout[state.currentExercise]) {
+      state.currentExercise = workout.length - 1;
+      state.currentSet = 0;
+      setTimer(displayTimerSeconds(normalized, 0));
+    }
+    saveState();
+    render();
+    return normalized;
+  }
+
+  function removeWorkoutExercise(exerciseIndex) {
+    if (!Number.isInteger(exerciseIndex) || exerciseIndex < 0 || exerciseIndex >= workout.length) return false;
+    const started = exerciseStarted(exerciseIndex);
+    if (started || isTimerActive()) return false;
+    baseWorkout.splice(exerciseIndex, 1);
+    workout.splice(exerciseIndex, 1);
+    ['completed', 'logs'].forEach(bucket => {
+      const nextBucket = {};
+      Object.entries(state[bucket]).forEach(([key, value]) => {
+        const [oldExerciseIndex, setIndex] = key.split('-').map(Number);
+        if (oldExerciseIndex < exerciseIndex) nextBucket[key] = value;
+        if (oldExerciseIndex > exerciseIndex) nextBucket[keyFor(oldExerciseIndex - 1, setIndex)] = value;
+      });
+      state[bucket] = nextBucket;
+    });
+    ['swaps', 'skipped', 'extraSets'].forEach(bucket => {
+      const nextBucket = {};
+      Object.entries(state[bucket]).forEach(([key, value]) => {
+        const oldExerciseIndex = Number(key);
+        if (oldExerciseIndex < exerciseIndex) nextBucket[key] = value;
+        if (oldExerciseIndex > exerciseIndex) nextBucket[oldExerciseIndex - 1] = value;
+      });
+      state[bucket] = nextBucket;
+    });
+    const next = findNextOpen();
+    state.currentExercise = next ? next.exerciseIndex : null;
+    state.currentSet = next ? next.setIndex : null;
+    saveState();
+    setTimer(displayTimerSeconds(workout[state.currentExercise] || workout[0], state.currentSet));
+    render();
+    return true;
+  }
+
+  window.liftWorkoutApi = {
+    addExercise: addWorkoutExercise,
+    removeExercise: removeWorkoutExercise,
+    render,
+    workout
+  };
 
   function render() {
     const open = findNextOpen();

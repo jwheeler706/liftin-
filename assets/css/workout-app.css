@@ -534,3 +534,117 @@
   .weight-field.is-hidden {
     display: none;
   }
+  .builder-panel {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    display: grid;
+    gap: 14px;
+    margin: 16px 18px 0;
+    padding: 14px;
+  }
+  .builder-head {
+    align-items: start;
+    display: flex;
+    gap: 12px;
+    justify-content: space-between;
+  }
+  .builder-head h2 {
+    font-size: 22px;
+    font-weight: 800;
+    letter-spacing: -.3px;
+    line-height: 1;
+    margin-top: 5px;
+    text-transform: uppercase;
+  }
+  .builder-form {
+    display: grid;
+    gap: 10px;
+    grid-template-columns: 1fr 1fr;
+  }
+  .builder-field {
+    color: var(--accent-2);
+    display: grid;
+    font-family: 'Roboto Mono', monospace;
+    font-size: 10px;
+    font-weight: 700;
+    gap: 6px;
+    letter-spacing: 1.8px;
+    text-transform: uppercase;
+  }
+  .builder-field-wide,
+  .builder-add {
+    grid-column: 1 / -1;
+  }
+  .builder-field input,
+  .builder-field select {
+    appearance: none;
+    background: #101112;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    color: var(--text);
+    font: inherit;
+    font-family: 'Inter', sans-serif;
+    font-size: 16px;
+    font-weight: 800;
+    letter-spacing: 0;
+    min-height: 44px;
+    min-width: 0;
+    padding: 10px 12px;
+    text-transform: none;
+    width: 100%;
+  }
+  .builder-field input:focus,
+  .builder-field select:focus {
+    border-color: var(--accent);
+    outline: none;
+  }
+  .builder-list {
+    display: grid;
+    gap: 8px;
+  }
+  .builder-item {
+    align-items: start;
+    background: var(--raised);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    display: grid;
+    gap: 10px;
+    grid-template-columns: 1fr auto;
+    padding: 11px;
+  }
+  .builder-item > div {
+    min-width: 0;
+  }
+  .builder-item-name {
+    font-size: 17px;
+    font-weight: 800;
+    line-height: 1.1;
+    margin-top: 4px;
+    text-transform: uppercase;
+  }
+  .builder-item-dose,
+  .builder-empty,
+  .builder-note {
+    color: var(--muted);
+    font-size: 12px;
+    font-weight: 600;
+  }
+  .builder-remove {
+    background: transparent;
+    border-color: rgba(150, 146, 139, .22);
+    color: var(--muted);
+    font-family: 'Roboto Mono', monospace;
+    font-size: 10px;
+    letter-spacing: .9px;
+    min-height: 34px;
+    padding: 7px 9px;
+    text-transform: uppercase;
+  }
+  .custom-empty .workout-clock,
+  .custom-empty .current,
+  .custom-empty .section-label,
+  .custom-empty .exercise-list,
+  .custom-empty .complete-panel {
+    display: none;
+  }
