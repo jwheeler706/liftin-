@@ -52,6 +52,8 @@
         <option>Legs</option>
         <option>Shoulders</option>
         <option>Arms</option>
+        <option>Biceps</option>
+        <option>Triceps</option>
         <option>Core</option>
         <option>Cardio</option>
       </select>
@@ -81,6 +83,23 @@
     </label>
     <button type="submit" class="primary builder-add">Add Exercise</button>
   </form>
+  <div class="builder-random">
+    <label class="builder-field" for="randomExerciseCategory">Random
+      <select id="randomExerciseCategory">
+        <option value="Chest">Chest</option>
+        <option value="Back">Back</option>
+        <option value="Legs">Legs</option>
+        <option value="Shoulders">Shoulders</option>
+        <option value="Biceps">Biceps</option>
+        <option value="Triceps">Triceps</option>
+        <option value="Arms">Arms</option>
+        <option value="Core">Core</option>
+        <option value="Cardio">Cardio</option>
+        <option value="Warm Up">Warm Up</option>
+      </select>
+    </label>
+    <button type="button" class="ghost builder-random-add" id="addRandomExercise">Add Random</button>
+  </div>
   <div class="builder-list" id="customBuilderList"></div>
   <div class="builder-note" id="customBuilderNote"></div>
 </section>
@@ -179,7 +198,7 @@
     workout: savedCustomPlan?.workout?.length ? savedCustomPlan.workout : []
   };
 </script>
-<script src="../assets/js/workout-app.js?v=27"></script>
+<script src="../assets/js/workout-app.js?v=28"></script>
 <script>
   const customStateKey = 'standalone-lift-custom-state';
   const customForm = document.getElementById('customExerciseForm');
@@ -193,7 +212,75 @@
   const customRest = document.getElementById('customExerciseRest');
   const customTrack = document.getElementById('customExerciseTrack');
   const clearCustom = document.getElementById('clearCustomWorkout');
+  const randomCategory = document.getElementById('randomExerciseCategory');
+  const addRandom = document.getElementById('addRandomExercise');
   let customExercises = savedCustomPlan?.workout?.length ? [...savedCustomPlan.workout] : [];
+  const randomExercisePool = {
+    'Warm Up': [
+      { group: 'Warm Up', name: 'Band pull-aparts', sets: 2, reps: '15', rest: 45, track: 'none' },
+      { group: 'Warm Up', name: 'Cable external rotations', sets: 2, reps: '12 each', rest: 45, track: 'none' },
+      { group: 'Warm Up', name: 'Leg swings', sets: 2, reps: '8 each side', rest: 45, track: 'none' },
+      { group: 'Warm Up', name: 'Bodyweight squat', sets: 2, reps: '10', rest: 45, track: 'none' }
+    ],
+    Chest: [
+      { group: 'Chest', name: 'Barbell bench press', sets: 4, reps: '5-6', rest: 120, track: 'weight' },
+      { group: 'Chest', name: 'Incline dumbbell press', sets: 3, reps: '8-10', rest: 90, track: 'weight' },
+      { group: 'Chest', name: 'Cable fly', sets: 3, reps: '12-15', rest: 60, track: 'weight' },
+      { group: 'Chest', name: 'Machine chest press', sets: 3, reps: '10-12', rest: 75, track: 'weight' }
+    ],
+    Back: [
+      { group: 'Back', name: 'Seated cable row', sets: 4, reps: '8-10', rest: 90, track: 'weight' },
+      { group: 'Back', name: 'Lat pulldown', sets: 3, reps: '10-12', rest: 75, track: 'weight' },
+      { group: 'Back', name: 'Chest-supported dumbbell row', sets: 3, reps: '10-12', rest: 75, track: 'weight' },
+      { group: 'Back', name: 'Face pulls', sets: 3, reps: '12-15', rest: 60, track: 'weight' }
+    ],
+    Legs: [
+      { group: 'Legs', name: 'Barbell back squat', sets: 4, reps: '5-6', rest: 120, track: 'weight' },
+      { group: 'Legs', name: 'Romanian deadlift', sets: 3, reps: '8-10', rest: 90, track: 'weight' },
+      { group: 'Legs', name: 'Leg press', sets: 3, reps: '10-12', rest: 90, track: 'weight' },
+      { group: 'Legs', name: 'Walking lunges', sets: 3, reps: '10 each leg', rest: 75, track: 'weight' },
+      { group: 'Legs', name: 'Seated or lying leg curl', sets: 3, reps: '12', rest: 60, track: 'weight' }
+    ],
+    Shoulders: [
+      { group: 'Shoulders', name: 'Dumbbell shoulder press', sets: 3, reps: '8-10', rest: 75, track: 'weight' },
+      { group: 'Shoulders', name: 'Machine shoulder press', sets: 3, reps: '10-12', rest: 75, track: 'weight' },
+      { group: 'Shoulders', name: 'Lateral raise', sets: 3, reps: '12-15', rest: 60, track: 'weight' },
+      { group: 'Shoulders', name: 'Rear delt raise', sets: 3, reps: '12-15', rest: 60, track: 'weight' }
+    ],
+    Biceps: [
+      { group: 'Biceps', name: 'EZ-bar curl', sets: 3, reps: '8-10', rest: 75, track: 'weight' },
+      { group: 'Biceps', name: 'Incline dumbbell curl', sets: 3, reps: '10-12', rest: 60, track: 'weight' },
+      { group: 'Biceps', name: 'Hammer curl', sets: 3, reps: '10-12', rest: 60, track: 'weight' },
+      { group: 'Biceps', name: 'Cable curl', sets: 3, reps: '10-12', rest: 60, track: 'weight' }
+    ],
+    Triceps: [
+      { group: 'Triceps', name: 'Rope pressdown', sets: 3, reps: '10-12', rest: 60, track: 'weight' },
+      { group: 'Triceps', name: 'Overhead cable extension', sets: 3, reps: '12-15', rest: 60, track: 'weight' },
+      { group: 'Triceps', name: 'Dumbbell overhead extension', sets: 3, reps: '10-12', rest: 60, track: 'weight' },
+      { group: 'Triceps', name: 'Close-grip push-ups', sets: 3, reps: 'AMRAP', rest: 60, track: 'reps' }
+    ],
+    Arms: [
+      { group: 'Arms', name: 'Cable curl + rope pressdown superset', sets: 3, reps: '10-12 each', rest: 60, track: 'none' },
+      { group: 'Arms', name: 'Hammer curl + close-grip push-up superset', sets: 3, reps: '10-12 each', rest: 60, track: 'none' },
+      { group: 'Arms', name: 'Alternating dumbbell curl + dumbbell overhead triceps extension', sets: 3, reps: '10-12 each', rest: 60, track: 'none' }
+    ],
+    Core: [
+      { group: 'Core', name: 'Cable crunch', sets: 2, reps: '12-15', rest: 45, track: 'weight' },
+      { group: 'Core', name: 'Hanging knee raise', sets: 2, reps: '8-12', rest: 45, track: 'none' },
+      { group: 'Core', name: 'Ab wheel rollout', sets: 2, reps: '8-10', rest: 45, track: 'none' },
+      { group: 'Core', name: 'Plank circuit', sets: 4, reps: 'Timed', rest: 0, track: 'none', setTargets: [
+        { reps: 'Front plank 1:30', duration: 90 },
+        { reps: 'Left side plank 1:30', duration: 90 },
+        { reps: 'Right side plank 1:30', duration: 90 },
+        { reps: 'Front plank 1:00', duration: 60 }
+      ] }
+    ],
+    Cardio: [
+      { group: 'Cardio', name: 'Stair stepper', sets: 1, reps: '10 min', rest: 0, track: 'none', duration: 600 },
+      { group: 'Cardio', name: 'Stationary bike', sets: 1, reps: '10 min', rest: 0, track: 'none', duration: 600 },
+      { group: 'Cardio', name: 'Incline treadmill walk', sets: 1, reps: '10 min', rest: 0, track: 'none', duration: 600 }
+    ]
+  };
 
   function escapeCustomText(value) {
     return String(value).replace(/[&<>"']/g, character => ({
@@ -210,6 +297,24 @@
       updatedAt: new Date().toISOString(),
       workout: customExercises
     }));
+  }
+
+  function addCustomExercise(exercise) {
+    customExercises.push(exercise);
+    saveCustomPlan();
+    window.liftWorkoutApi?.addExercise(exercise);
+    document.body.classList.remove('custom-empty');
+    document.body.classList.add('custom-ready');
+    customNote.textContent = '';
+    renderCustomBuilder();
+  }
+
+  function randomExercise(category) {
+    const options = randomExercisePool[category] || [];
+    if (!options.length) return null;
+    const unused = options.filter(option => !customExercises.some(exercise => exercise.name === option.name));
+    const candidates = unused.length ? unused : options;
+    return { ...candidates[Math.floor(Math.random() * candidates.length)] };
   }
 
   function renderCustomBuilder() {
@@ -243,19 +348,22 @@
       rest: Number(customRest.value) || 0,
       track: customTrack.value
     };
-    customExercises.push(exercise);
-    saveCustomPlan();
-    window.liftWorkoutApi?.addExercise(exercise);
-    document.body.classList.remove('custom-empty');
-    document.body.classList.add('custom-ready');
+    addCustomExercise(exercise);
     customName.value = '';
     customReps.value = '';
     customSets.value = '3';
     customRest.value = '60';
     customTrack.value = 'weight';
-    customNote.textContent = '';
-    renderCustomBuilder();
     customName.focus();
+  });
+
+  addRandom.addEventListener('click', () => {
+    const exercise = randomExercise(randomCategory.value);
+    if (!exercise) {
+      customNote.textContent = 'No exercises available for that category.';
+      return;
+    }
+    addCustomExercise(exercise);
   });
 
   customList.addEventListener('click', event => {

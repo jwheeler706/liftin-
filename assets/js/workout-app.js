@@ -826,6 +826,8 @@ const config = window.liftWorkoutConfig;
       rest: Math.max(0, Number(exercise.rest) || 0),
       track: exercise.track || 'weight'
     };
+    if (exercise.duration) normalized.duration = exercise.duration;
+    if (Array.isArray(exercise.setTargets)) normalized.setTargets = exercise.setTargets;
     baseWorkout.push(normalized);
     workout.push(normalized);
     if (state.currentExercise === null || !workout[state.currentExercise]) {

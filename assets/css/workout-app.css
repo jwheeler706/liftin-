@@ -603,6 +603,18 @@
     border-color: var(--accent);
     outline: none;
   }
+  .builder-random {
+    align-items: end;
+    display: grid;
+    gap: 10px;
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+  .builder-random-add {
+    border-color: rgba(123, 207, 143, .34);
+    color: #d9f1df;
+    min-height: 44px;
+    white-space: nowrap;
+  }
   .builder-list {
     display: grid;
     gap: 8px;
