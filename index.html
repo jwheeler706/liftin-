@@ -97,6 +97,16 @@
     -webkit-tap-highlight-color: transparent;
   }
   .workout-card:active { filter: brightness(1.12); }
+  .workout-card.custom-workout {
+    background:
+      linear-gradient(135deg, rgba(123, 207, 143, .18), rgba(90, 126, 138, .1)),
+      #141b18;
+    border-color: rgba(123, 207, 143, .42);
+    box-shadow: 0 18px 40px rgba(0, 0, 0, .22), inset 0 0 0 1px rgba(123, 207, 143, .06);
+  }
+  .workout-card.custom-workout .workout-title {
+    color: #d9f1df;
+  }
   .workout-copy { flex: 1; min-width: 0; }
   .workout-title {
     font-size: 24px;
@@ -158,14 +168,14 @@
       <div class="workout-title">Full Body</div>
     </div>
   </a>
-  <a class="workout-card" href="./workouts/custom.html">
-    <div class="workout-copy">
-      <div class="workout-title">Custom Workout</div>
-    </div>
-  </a>
   <a class="workout-card" href="./workouts/legs-arms.html">
     <div class="workout-copy">
       <div class="workout-title">Legs &amp; Arms</div>
+    </div>
+  </a>
+  <a class="workout-card custom-workout" href="./workouts/custom.html">
+    <div class="workout-copy">
+      <div class="workout-title">Custom Workout</div>
     </div>
   </a>
 </main>
