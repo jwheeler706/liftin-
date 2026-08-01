@@ -322,12 +322,12 @@
     clearCustom.disabled = customExercises.length === 0;
     customList.innerHTML = customExercises.length ? customExercises.map((exercise, index) => `
       <div class="builder-item">
-        <button type="button" class="builder-remove" data-index="${index}" aria-label="Remove ${escapeCustomText(exercise.name)}">Remove</button>
         <div>
           <div class="exercise-kicker">${escapeCustomText(exercise.group)}</div>
           <div class="builder-item-name">${escapeCustomText(exercise.name)}</div>
           <div class="builder-item-dose">${escapeCustomText(exercise.sets)} x ${escapeCustomText(exercise.reps)} · ${escapeCustomText(exercise.rest)}s rest</div>
         </div>
+        <button type="button" class="builder-remove" data-index="${index}" aria-label="Remove ${escapeCustomText(exercise.name)}">Remove</button>
       </div>
     `).join('') : '<div class="builder-empty">Add the first exercise to start building.</div>';
   }
