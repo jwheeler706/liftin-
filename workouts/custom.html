@@ -130,6 +130,8 @@
           <option value="Warm Up">Warm Up</option>
         </select>
       </label>
+      <button type="button" class="ghost builder-shuffle-roll" id="rollRandomExercise">Shuffle</button>
+      <div class="builder-random-preview" id="randomExercisePreview"></div>
       <button type="button" class="primary builder-add" id="addRandomExercise">Add</button>
     </div>
   </form>
@@ -270,6 +272,8 @@
   const listExerciseName = document.getElementById('listExerciseName');
   const addListed = document.getElementById('addListedExercise');
   const randomCategory = document.getElementById('randomExerciseCategory');
+  const rollRandom = document.getElementById('rollRandomExercise');
+  const randomPreview = document.getElementById('randomExercisePreview');
   const addRandom = document.getElementById('addRandomExercise');
   const builderSave = document.getElementById('builderSavePanel');
   const customWorkoutTitle = document.getElementById('customWorkoutTitle');
@@ -285,6 +289,7 @@
   let customRandomExercisePool = readCustomJson(customRandomExercisePoolKey, {});
   let activeSavedWorkoutId = selectedSavedWorkout?.id || null;
   let deleteRevealTimer = null;
+  let pendingRandomExercise = null;
   const randomExercisePool = {
     'Warm Up': [
       { group: 'Warm Up', name: 'Band pull-aparts', sets: 2, reps: '15', rest: 45, track: 'none' },
@@ -501,12 +506,28 @@
     renderCustomBuilder();
   }
 
-  function randomExercise(category) {
+  function randomExercise(category, excludeName = '') {
     const options = randomExercisePool[category] || [];
     if (!options.length) return null;
     const unused = options.filter(option => !customExercises.some(exercise => exercise.name === option.name));
-    const candidates = unused.length ? unused : options;
+    const baseCandidates = unused.length ? unused : options;
+    const rerollCandidates = baseCandidates.filter(option => exercisePoolName(option.name) !== exercisePoolName(excludeName));
+    const candidates = rerollCandidates.length ? rerollCandidates : baseCandidates;
     return cloneExercise(candidates[Math.floor(Math.random() * candidates.length)]);
+  }
+
+  function rollRandomExercise() {
+    pendingRandomExercise = randomExercise(randomCategory.value, pendingRandomExercise?.name);
+    renderRandomPreview();
+  }
+
+  function renderRandomPreview() {
+    addRandom.disabled = !pendingRandomExercise;
+    randomPreview.innerHTML = pendingRandomExercise ? `
+      <div class="exercise-kicker">${escapeCustomText(pendingRandomExercise.group)}</div>
+      <div class="builder-random-preview-name">${escapeCustomText(pendingRandomExercise.name)}</div>
+      <div class="builder-random-preview-dose">${escapeCustomText(pendingRandomExercise.sets)} x ${escapeCustomText(pendingRandomExercise.reps)} · ${escapeCustomText(pendingRandomExercise.rest)}s rest</div>
+    ` : '<div class="builder-empty">Nothing available for this group.</div>';
   }
 
   function listedExercise(category, name) {
@@ -603,7 +624,10 @@
       });
       if (button.dataset.addMode === 'write') customName.focus();
       if (button.dataset.addMode === 'pick') listExerciseName.focus();
-      if (button.dataset.addMode === 'shuffle') randomCategory.focus();
+      if (button.dataset.addMode === 'shuffle') {
+        rollRandomExercise();
+        randomCategory.focus();
+      }
     });
   });
 
@@ -618,13 +642,16 @@
     addCustomExercise(exercise);
   });
 
+  randomCategory.addEventListener('change', rollRandomExercise);
+  rollRandom.addEventListener('click', rollRandomExercise);
+
   addRandom.addEventListener('click', () => {
-    const exercise = randomExercise(randomCategory.value);
-    if (!exercise) {
+    if (!pendingRandomExercise) {
       customNote.textContent = 'No exercises available for that category.';
       return;
     }
-    addCustomExercise(exercise);
+    addCustomExercise(cloneExercise(pendingRandomExercise));
+    rollRandomExercise();
   });
 
   customList.addEventListener('click', event => {
@@ -748,6 +775,7 @@
   savedWorkoutName.value = selectedSavedWorkout?.name || '';
   hydrateCustomRandomExercisePool();
   syncPoolCategoryOptions();
+  rollRandomExercise();
   renderSavedCategoryOptions();
   newWorkoutCategory.disabled = savedWorkoutCategory.value !== '__new';
   renderCustomBuilder();

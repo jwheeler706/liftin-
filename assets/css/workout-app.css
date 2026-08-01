@@ -639,6 +639,31 @@
     border-color: var(--accent);
     outline: none;
   }
+  .builder-shuffle-roll {
+    align-self: end;
+    min-height: 44px;
+  }
+  .builder-random-preview {
+    background: var(--raised);
+    border: 1px solid rgba(255, 122, 69, .28);
+    border-radius: 12px;
+    grid-column: 1 / -1;
+    min-height: 66px;
+    padding: 12px;
+  }
+  .builder-random-preview-name {
+    font-size: 17px;
+    font-weight: 800;
+    line-height: 1.1;
+    margin-top: 4px;
+    text-transform: uppercase;
+  }
+  .builder-random-preview-dose {
+    color: var(--muted);
+    font-size: 12px;
+    font-weight: 600;
+    margin-top: 4px;
+  }
   .builder-list {
     display: grid;
     gap: 8px;

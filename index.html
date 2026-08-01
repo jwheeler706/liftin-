@@ -220,8 +220,8 @@
   const homeCollapsedKey = 'standalone-lift-home-collapsed-categories';
   const baseWorkoutSections = [
     {
-      id: 'push',
-      title: 'Push',
+      id: 'chest',
+      title: 'Chest',
       workouts: [
         { title: 'Chest & Tri', href: './workouts/chest-tri.html' },
         { title: 'Game Day Chest & Tri', href: './workouts/game-day-chest-tri.html' },
@@ -229,16 +229,16 @@
       ]
     },
     {
-      id: 'upper-full',
-      title: 'Upper / Full',
+      id: 'mixed',
+      title: 'Mixed',
       workouts: [
         { title: 'Upper Body', href: './workouts/upper-body.html' },
         { title: 'Full Body', href: './workouts/full-body.html' }
       ]
     },
     {
-      id: 'legs-mixed',
-      title: 'Legs / Mixed',
+      id: 'legs',
+      title: 'Legs',
       workouts: [
         { title: 'Legs & Arms', href: './workouts/legs-arms.html' }
       ]
@@ -264,6 +264,17 @@
 
   function categoryId(category) {
     return `category-${String(category).trim().toLowerCase().replace(/[^a-z0-9]+/g, '-') || 'custom'}`;
+  }
+
+  function inferredWorkoutCategory(title, fallback = '') {
+    const text = `${title || ''} ${fallback || ''}`.toLowerCase();
+    if (text.includes('chest')) return 'Chest';
+    if (text.includes('back')) return 'Back';
+    if (text.includes('leg')) return 'Legs';
+    if (text.includes('shoulder')) return 'Shoulders';
+    if (text.includes('core') || text.includes('ab')) return 'Core';
+    if (text.includes('upper') || text.includes('full')) return 'Mixed';
+    return fallback || 'Mixed';
   }
 
   function loadSavedCustomWorkouts() {
@@ -295,7 +306,7 @@
       workouts: [...section.workouts]
     }));
     customWorkouts.forEach(workout => {
-      const category = workout.category || 'Custom';
+      const category = inferredWorkoutCategory(workout.name, workout.category);
       const id = categoryId(category);
       let section = sections.find(item => item.id === id || item.title.toLowerCase() === category.toLowerCase());
       if (!section) {
